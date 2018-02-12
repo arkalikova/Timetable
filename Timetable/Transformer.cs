@@ -8,7 +8,7 @@ namespace Timetable
 {
     static class Transformer
     {
-        static public Dictionary<int, Tuple<string, string>> Teachers { get; set; }
+        static public Dictionary<int, Teacher> Teachers { get; set; }
 
         static public Dictionary<int, string> Disciplines { get; set; }
 
