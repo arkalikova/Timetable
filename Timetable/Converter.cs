@@ -63,7 +63,7 @@ namespace Timetable
                         newWorksheetT = resultT
                             .Workbook
                             .Worksheets
-                            .Add(excelWorksheet.Name, excelWorksheet);
+                            .Add("Преподаватели", excelWorksheet);
                     }
                     else
                     {
@@ -98,7 +98,10 @@ namespace Timetable
                 if (newWorksheetCells != null)
                 {
                     //ставим время пар в представлении для студентов
-                    newWorksheet.Cells[row, 3].Value = _dataContainer.Time[(Convert.ToInt32(newWorksheetCells))];
+                    string tmp = _dataContainer.Time[(Convert.ToInt32(newWorksheetCells))];
+                    tmp = newWorksheet.Cells[row, 2].Value.ToString() + Convert.ToChar(10) + tmp;
+                    newWorksheet.Cells[row, 2].Value = tmp;
+                    newWorksheet.Cells[row, 2, row, 3].Merge = true;
                     //ставим время пар в представлении для преподавателей
                     if (flag)
                         newWorksheetT.Cells[row, 4, row, endCol].Value = null;
@@ -178,6 +181,7 @@ namespace Timetable
                     _dataContainer.Teachers[teacherIndex].Column = newCol;
                     newWorksheetT.Cells[3, newCol].Value = _dataContainer
                         .Teachers[teacherIndex].Name;
+                    teacherColumn = newCol;
                 }
                 if (newWorksheetT.Cells[row, teacherColumn].Value == null)
                 {

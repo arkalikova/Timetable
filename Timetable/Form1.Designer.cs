@@ -52,11 +52,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(151, 17);
+            this.label1.Location = new System.Drawing.Point(178, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(144, 13);
+            this.label1.Size = new System.Drawing.Size(117, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Директория для выгрузки:";
+            this.label1.Text = "Путь для сохранения:";
             // 
             // txtPath
             // 
