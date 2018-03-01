@@ -183,6 +183,9 @@ namespace Timetable
                     .Split(';',',');
                 var disciplineIndex = "";
                 var teacherIndex = "";
+                var teacherColumn = 0;
+                var val = "";
+                var ind = 0;
                 foreach (string s in mas)
                 {
                     if (s.Length > 0)
@@ -193,7 +196,7 @@ namespace Timetable
                                 break;
                             case 'П':
                                 teacherIndex = s;
-                                var teacherColumn = _dataContainer.Teachers[teacherIndex].Column;
+                                teacherColumn = _dataContainer.Teachers[teacherIndex].Column;
                                 if (teacherColumn == 0)
                                 {
                                     newCol++;
@@ -212,13 +215,17 @@ namespace Timetable
                                 }
                                 else
                                 {
-                                    var val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                                    var ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex]);
+                                    val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
+                                    ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex]);
+                                    var indbreak = -1;
                                     if (ind > -1)
+                                    {
+                                        indbreak = val.IndexOf('\n', ind);
                                         newWorksheetT.Cells[row, teacherColumn].Value =
-                                                val.Substring(0, ind + 1 + _dataContainer.Disciplines[disciplineIndex].Length) +
+                                                val.Substring(0, indbreak + 1) +
                                                 excelWorksheet.Cells[3, col].Value + ", " +
-                                                val.Substring(ind + 1 + _dataContainer.Disciplines[disciplineIndex].Length);
+                                                val.Substring(indbreak + 1);
+                                    }
                                     else
                                         newWorksheetT.Cells[row, teacherColumn].Value =
                                             val + Convert.ToChar(10) +
@@ -227,7 +234,14 @@ namespace Timetable
                                 }
                                 break;
                             case 'А':
-                                //result += (result == "" ? "" : " ") + _dataContainer.Auditorium[s1];
+                                val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
+                                ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex]);
+                                var indaud = val.IndexOf(_dataContainer.Auditorium[s]);
+                                if (indaud == -1)
+                                    newWorksheetT.Cells[row, teacherColumn].Value =
+                                        val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length) +
+                                        ' ' + _dataContainer.Auditorium[s] +
+                                        val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length);
                                 break;
                         }
                 }

@@ -16,7 +16,7 @@
 -В шаблоне присутствуют идентификаторы, которые отсутствуют в справочнике";
         public static readonly string FailedOtherMessage = @"Произошла ошибка!
 Возможные причины:
--Некорректный шаблон";
+-Некорректно составлен шаблон";
         public static readonly string ExcelFilter = "Файл Excel (*.xlsx)| *.xlsx";
         public static readonly string StudentsResultFileName = "\\Расписание для студентов.xlsx";
         public static readonly string TeachersResultFileName = "\\Расписание для преподавателей.xlsx";
