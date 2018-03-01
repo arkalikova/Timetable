@@ -8,10 +8,11 @@ namespace Timetable
     {
         public DataContainer()
         {
-            Teachers = new Dictionary<int, Teacher>();
-            Disciplines = new Dictionary<int, string>();
+            Teachers = new Dictionary<string, Teacher>();
+            Disciplines = new Dictionary<string, string>();
             Time = new Dictionary<int, string>();
             Groups = new Dictionary<int, string>();
+            Auditorium = new Dictionary<string, string>();
         }
 
         public void ClearDictionaries()
@@ -39,9 +40,9 @@ namespace Timetable
             }
         }
 
-        public static void AddTeachers(
+        public static void AddToDataContainerDictionaries(
             ExcelWorkbook workbook,
-            IDictionary<int, Teacher> dictionary,
+            IDictionary<string, string> dictionary,
             string worksheetName)
         {
             var worksheet = workbook.Worksheets[worksheetName];
@@ -49,7 +50,24 @@ namespace Timetable
             var endRow = worksheet.Dimension.End.Row;
             for (var i = startRow + 1; i <= endRow; i++)
             {
-                dictionary.Add(Convert.ToInt32(worksheet.Cells[i, 1].Value), new Teacher
+                var key = worksheet.Cells[i, 1].Value.ToString();
+                var worksheetValue = worksheet.Cells[i, 2].Value.ToString();
+
+                dictionary.Add(key, worksheetValue);
+            }
+        }
+
+        public static void AddTeachers(
+            ExcelWorkbook workbook,
+            IDictionary<string, Teacher> dictionary,
+            string worksheetName)
+        {
+            var worksheet = workbook.Worksheets[worksheetName];
+            var startRow = worksheet.Dimension.Start.Row;
+            var endRow = worksheet.Dimension.End.Row;
+            for (var i = startRow + 1; i <= endRow; i++)
+            {
+                dictionary.Add(worksheet.Cells[i, 1].Value.ToString(), new Teacher
                 {
                     Name = worksheet.Cells[i, 2].Value.ToString(),
                     Email = worksheet.Cells[i, 3].Value.ToString(),
@@ -58,9 +76,10 @@ namespace Timetable
             }
         }
 
-        public Dictionary<int, Teacher> Teachers { get; set; }
-        public Dictionary<int, string> Disciplines { get; set; }
+        public Dictionary<string, Teacher> Teachers { get; set; }
+        public Dictionary<string, string> Disciplines { get; set; }
         public Dictionary<int, string> Time { get; set; }
         public Dictionary<int, string> Groups { get; set; }
+        public Dictionary<string, string> Auditorium { get; set; }
     }
 }

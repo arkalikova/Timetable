@@ -53,7 +53,8 @@ namespace Timetable
                 //копируем все листы с содержимым
                 if (excelWorksheet.Name != Settings.TeacherWorksheetName &&
                     excelWorksheet.Name != Settings.DisciplinesWorksheetName &&
-                    excelWorksheet.Name != Settings.TimesWorksheetName)
+                    excelWorksheet.Name != Settings.TimesWorksheetName &&
+                    excelWorksheet.Name != Settings.AuditoriaWorksheetName)
                 {
                     //копируем лист для студентов
                     var newWorksheet = resultS.Workbook.Worksheets.Add(excelWorksheet.Name, excelWorksheet);
@@ -63,7 +64,7 @@ namespace Timetable
                         newWorksheetT = resultT
                             .Workbook
                             .Worksheets
-                            .Add("Преподаватели", excelWorksheet);
+                            .Add(Settings.TeacherWorksheetName, excelWorksheet);
                     }
                     else
                     {
@@ -77,6 +78,8 @@ namespace Timetable
                     ConvertWorksheet(newWorksheet, newWorksheetT, excelWorksheet,
                         flag, endRow, endCol, ref newCol, progressBar);
                     newWorksheetT.Cells[3, newCol + 1, endRow, endCol].Clear();
+                    //newWorksheet.Cells[3, 1, endRow, endCol].AutoFitColumns();
+                    //newWorksheetT.Cells[3, 1, endRow, newCol].AutoFitColumns();
                 }
             }
             progressBar.Value = 100;
@@ -106,9 +109,15 @@ namespace Timetable
                     if (flag)
                         newWorksheetT.Cells[row, 4, row, endCol].Value = null;
 
-                    var excelWorksheetCell = excelWorksheet.Cells[row, 3].Value;
                     var address = "";
-                    newWorksheetT.Cells[row, 3].Value = _dataContainer.Time[Convert.ToInt32(excelWorksheetCell)];
+                    if (!newWorksheetT.Cells[row, 2, row, 3].Merge)
+                    {
+                        var excelWorksheetCell = excelWorksheet.Cells[row, 3].Value;
+                        tmp = _dataContainer.Time[(Convert.ToInt32(excelWorksheetCell))];
+                        tmp = newWorksheetT.Cells[row, 2].Value.ToString() + Convert.ToChar(10) + tmp;
+                        newWorksheetT.Cells[row, 2].Value = tmp;
+                        newWorksheetT.Cells[row, 2, row, 3].Merge = true;
+                    }
                     progressBar.Increment(7 / (endRow - 3));
 
                     ChangeCellValues(newWorksheet,
@@ -150,11 +159,13 @@ namespace Timetable
         private static void FillTransformerDictionaries(ProgressBar progressBar, ExcelWorkbook workbook)
         {
             DataContainer.AddTeachers(workbook, _dataContainer.Teachers, Settings.TeacherWorksheetName);
-            progressBar.Increment(20);
+            progressBar.Increment(10);
             DataContainer.AddToDataContainerDictionaries(workbook, _dataContainer.Disciplines, Settings.DisciplinesWorksheetName);
             progressBar.Increment(9);
             DataContainer.AddToDataContainerDictionaries(workbook, _dataContainer.Time, Settings.TimesWorksheetName);
             progressBar.Increment(8);
+            DataContainer.AddToDataContainerDictionaries(workbook, _dataContainer.Auditorium, Settings.AuditoriaWorksheetName);
+            progressBar.Increment(10);
         }
 
         private static void ChangeTeacherCellValue(
@@ -169,34 +180,82 @@ namespace Timetable
             {
                 var mas = teachers
                     .ToString()
-                    .Split(',')
-                    .Select(Int32.Parse)
-                    .ToArray();
+                    .Split(';',',');
+                var disciplineIndex = "";
+                var teacherIndex = "";
+                foreach (string s in mas)
+                {
+                    if (s.Length > 0)
+                    switch (s[0])
+                        {
+                            case 'Д':
+                                disciplineIndex = s;
+                                break;
+                            case 'П':
+                                teacherIndex = s;
+                                var teacherColumn = _dataContainer.Teachers[teacherIndex].Column;
+                                if (teacherColumn == 0)
+                                {
+                                    newCol++;
+                                    newWorksheetT.Cells[3, newCol].Copy(excelWorksheet.Cells[3, 4]);
+                                    _dataContainer.Teachers[teacherIndex].Column = newCol;
+                                    newWorksheetT.Cells[3, newCol].Value = _dataContainer
+                                        .Teachers[teacherIndex].Name;
+                                    teacherColumn = newCol;
+                                }
+                                if (newWorksheetT.Cells[row, teacherColumn].Value == null)
+                                {
+                                    newWorksheetT.Cells[row, teacherColumn].Copy(excelWorksheet.Cells[row, 4]);
+                                    newWorksheetT.Cells[row, teacherColumn].Value =
+                                        _dataContainer.Disciplines[disciplineIndex] + Convert.ToChar(10) +
+                                        excelWorksheet.Cells[3, col].Value;
+                                }
+                                else
+                                {
+                                    var val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
+                                    var ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex]);
+                                    if (ind > -1)
+                                        newWorksheetT.Cells[row, teacherColumn].Value =
+                                                val.Substring(0, ind + 1 + _dataContainer.Disciplines[disciplineIndex].Length) +
+                                                excelWorksheet.Cells[3, col].Value + ", " +
+                                                val.Substring(ind + 1 + _dataContainer.Disciplines[disciplineIndex].Length);
+                                    else
+                                        newWorksheetT.Cells[row, teacherColumn].Value =
+                                            val + Convert.ToChar(10) +
+                                            _dataContainer.Disciplines[disciplineIndex] + Convert.ToChar(10) +
+                                            excelWorksheet.Cells[3, col].Value;
+                                }
+                                break;
+                            case 'А':
+                                //result += (result == "" ? "" : " ") + _dataContainer.Auditorium[s1];
+                                break;
+                        }
+                }
 
-                var teacherIndex = mas[1];
-                var teacherColumn = _dataContainer.Teachers[teacherIndex].Column;
-                if (teacherColumn == 0)
-                {
-                    newCol++;
-                    _dataContainer.Teachers[teacherIndex].Column = newCol;
-                    newWorksheetT.Cells[3, newCol].Value = _dataContainer
-                        .Teachers[teacherIndex].Name;
-                    teacherColumn = newCol;
-                }
-                if (newWorksheetT.Cells[row, teacherColumn].Value == null)
-                {
-                    var disciplineIndex = mas[0];
-                    newWorksheetT.Cells[row, teacherColumn].Value =
-                        _dataContainer.Disciplines[disciplineIndex] + Convert.ToChar(10) +
-                        excelWorksheet.Cells[3, col].Value;
-                }
-                else
-                {
-                    newWorksheetT.Cells[row, teacherColumn].Value =
-                        newWorksheetT.Cells[row, teacherColumn].Value +
-                        ", " +
-                        excelWorksheet.Cells[3, col].Value;
-                }
+                //var teacherIndex = mas[1];
+                //var teacherColumn = _dataContainer.Teachers[teacherIndex].Column;
+                //if (teacherColumn == 0)
+                //{
+                //    newCol++;
+                //    _dataContainer.Teachers[teacherIndex].Column = newCol;
+                //    newWorksheetT.Cells[3, newCol].Value = _dataContainer
+                //        .Teachers[teacherIndex].Name;
+                //    teacherColumn = newCol;
+                //}
+                //if (newWorksheetT.Cells[row, teacherColumn].Value == null)
+                //{
+                //    var disciplineIndex = mas[0];
+                //    newWorksheetT.Cells[row, teacherColumn].Value =
+                //        _dataContainer.Disciplines[disciplineIndex] + Convert.ToChar(10) +
+                //        excelWorksheet.Cells[3, col].Value;
+                //}
+                //else
+                //{
+                //    newWorksheetT.Cells[row, teacherColumn].Value =
+                //        newWorksheetT.Cells[row, teacherColumn].Value +
+                //        ", " +
+                //        excelWorksheet.Cells[3, col].Value;
+                //}
             }
         }
 
@@ -211,16 +270,36 @@ namespace Timetable
             {
                 var mas = disciplines
                     .ToString()
-                    .Split(',')
-                    .Select(Int32.Parse)
-                    .ToArray();
+                    .Split(';');
+                var result = "";
+                foreach (string s in mas)
+                {
+                    var mas1 = s.Split(',');
+                    foreach(string s1 in mas1)
+                    {
+                        if (s1.Length>0)
+                            switch (s1[0])
+                            {
+                                case 'Д':
+                                    result += (result == "" ? "" : " ") + _dataContainer.Disciplines[s1];
+                                    break;
+                                case 'П':
+                                    result += (result == "" ? "" : " ") + _dataContainer.Teachers[s1].Name;
+                                    break;
+                                case 'А':
+                                    result += (result == "" ? "" : " ") + _dataContainer.Auditorium[s1];
+                                    break;
+                            }
+                    }
+                    result += Convert.ToChar(10);
+                }
 
-                newWorksheet.Cells[row, col].Value =
-                    _dataContainer.Disciplines[mas[0]] + Convert.ToChar(10) +
-                    _dataContainer.Teachers[mas[1]].Name;
+                newWorksheet.Cells[row, col].Value = result;
+                    /*_dataContainer.Disciplines[mas[0]] + Convert.ToChar(10) +
+                    _dataContainer.Teachers[mas[1]].Name;*/
 
                 if (newWorksheet.Cells[row, col - 1].Value != null &&
-                    disciplines.ToString() == newWorksheet.Cells[row, col - 1]
+                    result == newWorksheet.Cells[row, col - 1]
                         .Value.ToString())
                 {
                     var addressPart = address.Substring(0,

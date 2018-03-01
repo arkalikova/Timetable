@@ -34,16 +34,9 @@ namespace Timetable
                 try
                 {
                     DeleteFilesIfExist();
-                }
-                catch (IOException)
-                {
-                    MessageBox.Show(Settings.FailedConvertationMessage);
-                }
-                progressBar1.Increment(10);
-                progressBar1.Increment(7);
+                    progressBar1.Increment(10);
+                    progressBar1.Increment(7);
 
-                try
-                {
                     Converter.ConvertTemplateToResult(fiFrom, _filePathToStudents, _filePathToTeachers, progressBar1);
 
                     MessageBox.Show(Settings.SuccessConvertationMessage);
