@@ -7,7 +7,7 @@
         public static readonly string TimesWorksheetName = "Время пар";
         public static readonly string AuditoriaWorksheetName = "Аудитории";
         public static readonly string SuccessConvertationMessage = "Экспортирование завершено";
-        public static readonly string FailedConvertationMessage = "Файлы с шаблоном или расписаниями уже используется. Закройте его и повторите попытку.";
+        public static readonly string FailedConvertationMessage = "Файлы с шаблоном или расписаниями уже используется. Закройте их и повторите попытку.";
         public static readonly string FailedFoundListMessage = @"Произошла ошибка!
 Возможные причины:
 -Некорректно названы справочные листы
