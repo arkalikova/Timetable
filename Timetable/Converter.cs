@@ -10,12 +10,13 @@ namespace Timetable
     {
         private static DataContainer _dataContainer;
         public static void ConvertTemplateToResult(
+            ref DataContainer dataContainer,
             FileInfo fiFrom,
             FileInfo filePathToS,
             FileInfo filePathToT,
             ProgressBar progressBar)
         {
-            _dataContainer = new DataContainer();
+            _dataContainer = dataContainer;
             using (var workbook = new ExcelPackage(fiFrom).Workbook)
             {
                 using (var resultS = new ExcelPackage(filePathToS))

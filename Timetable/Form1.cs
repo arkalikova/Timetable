@@ -8,10 +8,12 @@ namespace Timetable
     {
         private FileInfo _filePathToStudents;
         private FileInfo _filePathToTeachers;
+        private DataContainer _dataContainer;
 
         public Form1()
         {
             InitializeComponent();
+            _dataContainer = new DataContainer();
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -37,7 +39,7 @@ namespace Timetable
                     progressBar1.Increment(10);
                     progressBar1.Increment(7);
 
-                    Converter.ConvertTemplateToResult(fiFrom, _filePathToStudents, _filePathToTeachers, progressBar1);
+                    Converter.ConvertTemplateToResult(ref _dataContainer, fiFrom, _filePathToStudents, _filePathToTeachers, progressBar1);
 
                     MessageBox.Show(Settings.SuccessConvertationMessage);
                     btnOpenStudents.Enabled = true;
@@ -97,6 +99,15 @@ namespace Timetable
         private void btnOpenTeachers_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(_filePathToTeachers.FullName);
+        }
+
+        private void btnSend_Click(object sender, EventArgs e)
+        {
+            FormSend frm = new FormSend();
+            frm.dgvTeachers.DataSource = _dataContainer.Teachers.Values;
+            frm.Parent = this;
+            this.Enabled = false;
+            frm.Show();
         }
     }
 }

@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timetable", "Timetable\Timetable.csproj", "{9E01DC6E-53B5-437A-BB14-E878AAABD5E1}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TimetableSetup", "TimetableSetup\TimetableSetup.vdproj", "{D058197C-9F5E-4B9D-8B92-ABC61EED49C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{9E01DC6E-53B5-437A-BB14-E878AAABD5E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E01DC6E-53B5-437A-BB14-E878AAABD5E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E01DC6E-53B5-437A-BB14-E878AAABD5E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D058197C-9F5E-4B9D-8B92-ABC61EED49C9}.Debug|Any CPU.ActiveCfg = Debug
+		{D058197C-9F5E-4B9D-8B92-ABC61EED49C9}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

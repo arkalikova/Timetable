@@ -52,11 +52,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(178, 17);
+            this.label1.Location = new System.Drawing.Point(170, 17);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(117, 13);
+            this.label1.Size = new System.Drawing.Size(125, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Путь для сохранения:";
+            this.label1.Text = "Папка для сохранения:";
             // 
             // txtPath
             // 
@@ -86,6 +86,7 @@
             this.btnSend.TabIndex = 6;
             this.btnSend.Text = "Отправить";
             this.btnSend.UseVisualStyleBackColor = true;
+            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
             // progressBar1
             // 
