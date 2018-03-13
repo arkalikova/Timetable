@@ -23,6 +23,7 @@ namespace Timetable
                 {
                     using (var resultT = new ExcelPackage(filePathToT))
                     {
+                        ClearDictionaries();
                         FillTransformerDictionaries(progressBar, workbook);
                         ConvertWorksheets(progressBar, workbook, resultS, resultT);
                         SaveResults(resultS, resultT);
@@ -101,6 +102,10 @@ namespace Timetable
                 var newWorksheetCells = newWorksheet.Cells[row, 3].Value;
                 if (newWorksheetCells != null)
                 {
+                    //ставим дату
+                    //if (newWorksheet.Cells[row, 1].Value!=null)
+
+
                     //ставим время пар в представлении для студентов
                     string tmp = _dataContainer.Time[(Convert.ToInt32(newWorksheetCells))];
                     tmp = newWorksheet.Cells[row, 2].Value.ToString() + Convert.ToChar(10) + tmp;
@@ -171,6 +176,15 @@ namespace Timetable
             progressBar.Increment(8);
             DataContainer.AddToDataContainerDictionaries(workbook, _dataContainer.Auditorium, Settings.AuditoriaWorksheetName);
             progressBar.Increment(10);
+        }
+
+        private static void ClearDictionaries()
+        {
+            _dataContainer.Teachers.Clear();
+            _dataContainer.Disciplines.Clear();
+            _dataContainer.Time.Clear();
+            _dataContainer.Auditorium.Clear();
+            _dataContainer.Groups.Clear();
         }
 
         private static void ChangeTeacherCellValue(
@@ -300,9 +314,8 @@ namespace Timetable
                     result += Convert.ToChar(10);
                 }
 
-                newWorksheet.Cells[row, col].Value = result.Remove(result.Length - 1);
-                    /*_dataContainer.Disciplines[mas[0]] + Convert.ToChar(10) +
-                    _dataContainer.Teachers[mas[1]].Name;*/
+                result = result.Remove(result.Length - 1);
+                newWorksheet.Cells[row, col].Value = result;
 
                 if (newWorksheet.Cells[row, col - 1].Value != null &&
                     result == newWorksheet.Cells[row, col - 1]
@@ -326,9 +339,14 @@ namespace Timetable
                 }
             }
             newWorksheet.Column(col).Width = 42;
-            var val = newWorksheet.Cells[row, col].Value.ToString();
-            var res = val.Length - val.Replace("\n", "").Length;
-            maxbreak = (res > maxbreak ? res : maxbreak);
+            if (newWorksheet.Cells[row, col].Value != null)
+            {
+                var val = newWorksheet.Cells[row, col].Value.ToString();
+                var res = val.Length - val.Replace("\n", "").Length;
+                maxbreak = (res > maxbreak ? res : maxbreak);
+            }
+            else
+                maxbreak = 0;
         }
     }
 }
