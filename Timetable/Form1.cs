@@ -70,10 +70,12 @@ namespace Timetable
 
         private void DeleteFilesIfExist()
         {
-            if (File.Exists(_filePathToStudents.FullName))
-                File.Delete(_filePathToStudents.FullName);
-            if (File.Exists(_filePathToTeachers.FullName))
-                File.Delete(_filePathToTeachers.FullName);
+            string st = _filePathToStudents.FullName.Remove(_filePathToStudents.FullName.Length - 1);
+            if (File.Exists(st))
+                File.Delete(st);
+            string th = _filePathToTeachers.FullName.Remove(_filePathToTeachers.FullName.Length - 1);
+            if (File.Exists(th))
+                File.Delete(th);
         }
 
 
@@ -93,12 +95,12 @@ namespace Timetable
 
         private void btnOpenStudents_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(_filePathToStudents.FullName);
+            System.Diagnostics.Process.Start(_filePathToStudents.FullName.Remove(_filePathToStudents.FullName.Length - 1));
         }
 
         private void btnOpenTeachers_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(_filePathToTeachers.FullName);
+            System.Diagnostics.Process.Start(_filePathToTeachers.FullName.Remove(_filePathToTeachers.FullName.Length - 1));
         }
 
         private void btnSend_Click(object sender, EventArgs e)

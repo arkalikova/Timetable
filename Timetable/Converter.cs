@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using OfficeOpenXml;
+using Microsoft.Office.Interop.Excel;
 
 namespace Timetable
 {
@@ -37,7 +38,21 @@ namespace Timetable
             ExcelPackage resultT)
         {
             resultS.Save();
+            Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
+            Workbook wb = excel.Workbooks.Open(resultS.File.FullName);
+            foreach (Worksheet sh in wb.Sheets)
+                sh.Columns.AutoFit();
+            wb.SaveAs(resultS.File.FullName.Remove(resultS.File.FullName.Length - 1, 1), XlFileFormat.xlWorkbookDefault);
+            excel.Quit();
+            File.Delete(resultS.File.FullName);
             resultT.Save();
+            excel = new Microsoft.Office.Interop.Excel.Application();
+            wb = excel.Workbooks.Open(resultT.File.FullName);
+            foreach (Worksheet sh in wb.Sheets)
+                sh.Columns.AutoFit();
+            wb.SaveAs(resultT.File.FullName.Remove(resultT.File.FullName.Length - 1, 1), XlFileFormat.xlWorkbookDefault);
+            excel.Quit();
+            File.Delete(resultT.File.FullName);
         }
 
         private static void ConvertWorksheets(
@@ -271,7 +286,7 @@ namespace Timetable
                                 break;
                         }
                 }
-                newWorksheetT.Column(teacherColumn).Width = 71;
+                newWorksheetT.Column(teacherColumn).Width = 75;
                 val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
                 var res = val.Length - val.Replace("\n", "").Length;
                 maxbreakT = (res > maxbreakT ? res : maxbreakT);
@@ -338,7 +353,8 @@ namespace Timetable
                     address = newWorksheet.Cells[row, col].Address;
                 }
             }
-            newWorksheet.Column(col).Width = 42;
+
+            newWorksheet.Column(col).Width = 70;
             if (newWorksheet.Cells[row, col].Value != null)
             {
                 var val = newWorksheet.Cells[row, col].Value.ToString();
