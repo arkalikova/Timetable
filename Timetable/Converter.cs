@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows.Forms;
 using OfficeOpenXml;
 using Microsoft.Office.Interop.Excel;
+using System.Collections.Generic;
+using OfficeOpenXml.Style;
 
 namespace Timetable
 {
@@ -67,6 +69,7 @@ namespace Timetable
 
             foreach (var excelWorksheet in workbook.Worksheets)
             {
+                List<int> deletingRows = new List<int>();
                 //копируем все листы с содержимым
                 if (excelWorksheet.Name != Settings.TeacherWorksheetName &&
                     excelWorksheet.Name != Settings.DisciplinesWorksheetName &&
@@ -93,13 +96,48 @@ namespace Timetable
                     progressBar.Increment(10);
 
                     ConvertWorksheet(newWorksheet, newWorksheetT, excelWorksheet,
-                        flag, endRow, endCol, ref newCol, progressBar);
+                        flag, endRow, endCol, ref newCol, progressBar, ref deletingRows);
                     newWorksheetT.Cells[3, newCol + 1, endRow, endCol].Clear();
-                    //newWorksheet.Cells[3, 3, endRow, endCol].AutoFitColumns();
-                    //newWorksheetT.Cells[3, 3, endRow, newCol].AutoFitColumns();
+                    deletingRows.Sort((a, b) => -1 * a.CompareTo(b));
+                    foreach (int l in deletingRows)
+                    {
+                        SetBorderStyle(newWorksheet, endCol, l);
+                        newWorksheet.DeleteRow(l);
+                    }
                 }
             }
+            int tmp = 100 - progressBar.Value;
+            for (int row = newWorksheetT.Dimension.End.Row; row >=4 ; row--)
+            {
+                var isNullRow = true;
+                var newWorksheetCells = newWorksheetT.Cells[row, 3].Value;
+                if (newWorksheetCells != null)
+                {
+                    for (int col = 4; col < newWorksheetT.Dimension.End.Column; col++)
+                    {
+                        isNullRow = isNullRow && (newWorksheetT.Cells[row, col].Value == null);
+                    }
+                }
+                if (isNullRow)
+                {
+                    SetBorderStyle(newWorksheetT, newCol, row);
+                    newWorksheetT.DeleteRow(row);
+                }
+                progressBar.Value += tmp / (newWorksheetT.Dimension.End.Row - 3);
+            }
             progressBar.Value = 100;
+        }
+
+        private static void SetBorderStyle(ExcelWorksheet newWorksheet, int endCol, int l)
+        {
+            if ((newWorksheet.Cells[l + 1, 1].Value == null) && (newWorksheet.Cells[l + 1, 2].Value != null)
+                                        && (newWorksheet.Cells[l, 1].Value != null))
+            {
+                newWorksheet.Cells[l + 1, 1].Value = newWorksheet.Cells[l, 1].Value;
+                newWorksheet.Cells[l + 1, 1, l + 1, endCol].Style.Border.Top.Style = ExcelBorderStyle.Medium;
+            }
+            if ((newWorksheet.Cells[l + 1, 1].Value == null) && (newWorksheet.Cells[l + 1, 2].Value == null))
+                newWorksheet.Cells[l + 1, 1, l + 1, endCol].Style.Border.Top.Style = ExcelBorderStyle.Medium;
         }
 
         private static void ConvertWorksheet(
@@ -110,7 +148,8 @@ namespace Timetable
             int endRow,
             int endCol,
             ref int newCol,
-            ProgressBar progressBar)
+            ProgressBar progressBar,
+            ref List<int> deletingRows)
         {
             for (var row = 4; row <= endRow; row++)
             {
@@ -141,9 +180,12 @@ namespace Timetable
                     }
                     progressBar.Increment(7 / (endRow - 3));
 
+                    var isNullRow = true;
                     ChangeCellValues(newWorksheet,
                         newWorksheetT,
-                        excelWorksheet, ref newCol, endCol, row, ref address, progressBar);
+                        excelWorksheet, ref newCol, endCol, row, ref address, progressBar, ref isNullRow);
+                    if (isNullRow)
+                        deletingRows.Add(row);
 
                     if (!string.IsNullOrEmpty(address))
                         newWorksheet.Cells[address].Merge = true;
@@ -159,7 +201,8 @@ namespace Timetable
             int endCol,
             int row,
             ref string address,
-            ProgressBar progressBar)
+            ProgressBar progressBar,
+            ref bool isNullRow)
         {
             var maxbreak = 0;
             var maxbreakT = 0;
@@ -173,6 +216,7 @@ namespace Timetable
                 progressBar.Increment(6 / (endCol - 3));
 
                 ChangeStudentCellValue(newWorksheet, row, col, ref address, ref maxbreak);
+                isNullRow = isNullRow && (newWorksheet.Cells[row, col].Value == null);
                 ChangeTeacherCellValue(excelWorksheet, newWorksheetT, row, col, ref newCol, ref maxbreakT);
 
                 progressBar.Increment(16 / (endCol - 3));
