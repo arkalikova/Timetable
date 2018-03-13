@@ -48,21 +48,29 @@ namespace Timetable
                 catch (IOException)
                 {
                     progressBar1.Value = 0;
+                    btnOpenStudents.Enabled = false;
+                    btnOpenTeachers.Enabled = false;
                     MessageBox.Show(Settings.FailedConvertationMessage);
                 }
                 catch (NullReferenceException)
                 {
                     progressBar1.Value = 0;
+                    btnOpenStudents.Enabled = false;
+                    btnOpenTeachers.Enabled = false;
                     MessageBox.Show(Settings.FailedFoundListMessage);
                 }
                 catch (System.Collections.Generic.KeyNotFoundException)
                 {
                     progressBar1.Value = 0;
+                    btnOpenStudents.Enabled = false;
+                    btnOpenTeachers.Enabled = false;
                     MessageBox.Show(Settings.FailedFoundKeyMessage);
                 }
                 catch (Exception)
                 {
                     progressBar1.Value = 0;
+                    btnOpenStudents.Enabled = false;
+                    btnOpenTeachers.Enabled = false;
                     MessageBox.Show(Settings.FailedOtherMessage);
                 }
             }
