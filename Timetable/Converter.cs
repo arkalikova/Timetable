@@ -259,6 +259,7 @@ namespace Timetable
             {
                 var mas = teachers
                     .ToString()
+                    .Replace(" ","")
                     .Split(';',',');
                 var disciplineIndex = "";
                 var teacherIndex = "";
@@ -349,6 +350,7 @@ namespace Timetable
             {
                 var mas = disciplines
                     .ToString()
+                    .Replace(" ", "")
                     .Split(';');
                 var result = "";
                 foreach (string s in mas)

@@ -34,7 +34,7 @@ namespace Timetable
             for (var i = startRow + 1; i <= endRow; i++)
             {
                 var key = Convert.ToInt32(worksheet.Cells[i, 1].Value);
-                var worksheetValue = worksheet.Cells[i, 2].Value.ToString();
+                var worksheetValue = (worksheet.Cells[i, 2].Value==null?"":worksheet.Cells[i, 2].Value.ToString());
 
                 dictionary.Add(key, worksheetValue);
             }
@@ -51,7 +51,7 @@ namespace Timetable
             for (var i = startRow + 1; i <= endRow; i++)
             {
                 var key = worksheet.Cells[i, 1].Value.ToString();
-                var worksheetValue = worksheet.Cells[i, 2].Value.ToString();
+                var worksheetValue = (worksheet.Cells[i, 2].Value==null?"":worksheet.Cells[i, 2].Value.ToString());
 
                 dictionary.Add(key, worksheetValue);
             }
