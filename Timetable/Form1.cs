@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using System.Configuration;
 
 namespace Timetable
 {
@@ -9,11 +10,13 @@ namespace Timetable
         private FileInfo _filePathToStudents;
         private FileInfo _filePathToTeachers;
         private DataContainer _dataContainer;
+        private Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         public Form1()
         {
             InitializeComponent();
             _dataContainer = new DataContainer();
+            txtPath.Text = ConfigurationManager.AppSettings.Get("SavePath");
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -93,6 +96,10 @@ namespace Timetable
             if (fbd.ShowDialog() == DialogResult.OK)
             {
                 txtPath.Text = fbd.SelectedPath;
+                config.AppSettings.Settings.Remove("SavePath");
+                config.AppSettings.Settings.Add("SavePath", fbd.SelectedPath);
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
             }
         }
 
