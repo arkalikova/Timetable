@@ -33,7 +33,6 @@
             this.ColumnTeacher = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnSend = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.chbFull = new System.Windows.Forms.CheckBox();
-            this.chbCards = new System.Windows.Forms.CheckBox();
             this.btnSend = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTeachers)).BeginInit();
             this.SuspendLayout();
@@ -76,30 +75,22 @@
             // chbFull
             // 
             this.chbFull.AutoSize = true;
+            this.chbFull.Checked = true;
+            this.chbFull.CheckState = System.Windows.Forms.CheckState.Indeterminate;
             this.chbFull.Location = new System.Drawing.Point(325, 12);
             this.chbFull.Name = "chbFull";
-            this.chbFull.Size = new System.Drawing.Size(143, 17);
+            this.chbFull.Size = new System.Drawing.Size(196, 17);
             this.chbFull.TabIndex = 2;
-            this.chbFull.Text = "Отправить расписание";
+            this.chbFull.Text = "Отметитиь все/Снять выделение";
             this.chbFull.UseVisualStyleBackColor = true;
-            // 
-            // chbCards
-            // 
-            this.chbCards.AutoSize = true;
-            this.chbCards.Location = new System.Drawing.Point(325, 35);
-            this.chbCards.Name = "chbCards";
-            this.chbCards.Size = new System.Drawing.Size(128, 17);
-            this.chbCards.TabIndex = 3;
-            this.chbCards.Text = "Отправить карточку";
-            this.chbCards.UseVisualStyleBackColor = true;
             // 
             // btnSend
             // 
-            this.btnSend.Location = new System.Drawing.Point(474, 9);
+            this.btnSend.Location = new System.Drawing.Point(325, 35);
             this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(75, 23);
+            this.btnSend.Size = new System.Drawing.Size(144, 23);
             this.btnSend.TabIndex = 4;
-            this.btnSend.Text = "Отправить";
+            this.btnSend.Text = "Отправить расписание";
             this.btnSend.UseVisualStyleBackColor = true;
             // 
             // FormSend
@@ -108,7 +99,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(561, 349);
             this.Controls.Add(this.btnSend);
-            this.Controls.Add(this.chbCards);
             this.Controls.Add(this.chbFull);
             this.Controls.Add(this.dgvTeachers);
             this.Controls.Add(this.rtbText);
@@ -127,7 +117,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnTeacher;
         private System.Windows.Forms.DataGridViewCheckBoxColumn ColumnSend;
         private System.Windows.Forms.CheckBox chbFull;
-        private System.Windows.Forms.CheckBox chbCards;
         private System.Windows.Forms.Button btnSend;
         public System.Windows.Forms.DataGridView dgvTeachers;
     }
