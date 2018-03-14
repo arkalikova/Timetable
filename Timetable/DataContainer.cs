@@ -69,8 +69,8 @@ namespace Timetable
             {
                 dictionary.Add(worksheet.Cells[i, 1].Value.ToString(), new Teacher
                 {
-                    Name = worksheet.Cells[i, 2].Value.ToString(),
-                    Email = worksheet.Cells[i, 3].Value.ToString(),
+                    Name = (worksheet.Cells[i, 2].Value==null?"":worksheet.Cells[i, 2].Value.ToString()),
+                    Email = (worksheet.Cells[i, 3].Value==null?"":worksheet.Cells[i, 3].Value.ToString()),
                     Column = 0
                 });
             }
