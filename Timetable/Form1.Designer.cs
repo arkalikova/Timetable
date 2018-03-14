@@ -41,9 +41,10 @@
             // btnLoad
             // 
             this.btnLoad.Enabled = false;
-            this.btnLoad.Location = new System.Drawing.Point(12, 12);
+            this.btnLoad.Location = new System.Drawing.Point(16, 15);
+            this.btnLoad.Margin = new System.Windows.Forms.Padding(4);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(115, 23);
+            this.btnLoad.Size = new System.Drawing.Size(153, 28);
             this.btnLoad.TabIndex = 2;
             this.btnLoad.Text = "Загрузить шаблон";
             this.btnLoad.UseVisualStyleBackColor = true;
@@ -52,26 +53,29 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(170, 17);
+            this.label1.Location = new System.Drawing.Point(227, 21);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(125, 13);
+            this.label1.Size = new System.Drawing.Size(162, 17);
             this.label1.TabIndex = 3;
             this.label1.Text = "Папка для сохранения:";
             // 
             // txtPath
             // 
-            this.txtPath.Location = new System.Drawing.Point(301, 14);
+            this.txtPath.Location = new System.Drawing.Point(401, 17);
+            this.txtPath.Margin = new System.Windows.Forms.Padding(4);
             this.txtPath.Name = "txtPath";
             this.txtPath.ReadOnly = true;
-            this.txtPath.Size = new System.Drawing.Size(126, 20);
+            this.txtPath.Size = new System.Drawing.Size(167, 22);
             this.txtPath.TabIndex = 4;
             this.txtPath.TextChanged += new System.EventHandler(this.txtPath_TextChanged);
             // 
             // btnChoosePath
             // 
-            this.btnChoosePath.Location = new System.Drawing.Point(433, 12);
+            this.btnChoosePath.Location = new System.Drawing.Point(577, 15);
+            this.btnChoosePath.Margin = new System.Windows.Forms.Padding(4);
             this.btnChoosePath.Name = "btnChoosePath";
-            this.btnChoosePath.Size = new System.Drawing.Size(24, 23);
+            this.btnChoosePath.Size = new System.Drawing.Size(32, 28);
             this.btnChoosePath.TabIndex = 5;
             this.btnChoosePath.Text = "...";
             this.btnChoosePath.UseVisualStyleBackColor = true;
@@ -80,9 +84,10 @@
             // btnSend
             // 
             this.btnSend.Enabled = false;
-            this.btnSend.Location = new System.Drawing.Point(12, 41);
+            this.btnSend.Location = new System.Drawing.Point(16, 50);
+            this.btnSend.Margin = new System.Windows.Forms.Padding(4);
             this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(114, 23);
+            this.btnSend.Size = new System.Drawing.Size(152, 28);
             this.btnSend.TabIndex = 6;
             this.btnSend.Text = "Отправить";
             this.btnSend.UseVisualStyleBackColor = true;
@@ -91,17 +96,19 @@
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.progressBar1.Location = new System.Drawing.Point(0, 96);
+            this.progressBar1.Location = new System.Drawing.Point(0, 118);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(4);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(467, 23);
+            this.progressBar1.Size = new System.Drawing.Size(623, 28);
             this.progressBar1.TabIndex = 7;
             // 
             // btnOpenStudents
             // 
             this.btnOpenStudents.Enabled = false;
-            this.btnOpenStudents.Location = new System.Drawing.Point(154, 41);
+            this.btnOpenStudents.Location = new System.Drawing.Point(205, 50);
+            this.btnOpenStudents.Margin = new System.Windows.Forms.Padding(4);
             this.btnOpenStudents.Name = "btnOpenStudents";
-            this.btnOpenStudents.Size = new System.Drawing.Size(141, 40);
+            this.btnOpenStudents.Size = new System.Drawing.Size(188, 49);
             this.btnOpenStudents.TabIndex = 8;
             this.btnOpenStudents.Text = "Открыть расписание для студентов";
             this.btnOpenStudents.UseVisualStyleBackColor = true;
@@ -110,9 +117,10 @@
             // btnOpenTeachers
             // 
             this.btnOpenTeachers.Enabled = false;
-            this.btnOpenTeachers.Location = new System.Drawing.Point(301, 41);
+            this.btnOpenTeachers.Location = new System.Drawing.Point(401, 50);
+            this.btnOpenTeachers.Margin = new System.Windows.Forms.Padding(4);
             this.btnOpenTeachers.Name = "btnOpenTeachers";
-            this.btnOpenTeachers.Size = new System.Drawing.Size(141, 40);
+            this.btnOpenTeachers.Size = new System.Drawing.Size(188, 49);
             this.btnOpenTeachers.TabIndex = 9;
             this.btnOpenTeachers.Text = "Открыть расписание для преподавателей";
             this.btnOpenTeachers.UseVisualStyleBackColor = true;
@@ -120,9 +128,9 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(467, 119);
+            this.ClientSize = new System.Drawing.Size(623, 146);
             this.Controls.Add(this.btnOpenTeachers);
             this.Controls.Add(this.btnOpenStudents);
             this.Controls.Add(this.progressBar1);
@@ -131,6 +139,7 @@
             this.Controls.Add(this.txtPath);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnLoad);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "Расписание ВЗФ";
             this.ResumeLayout(false);
