@@ -266,13 +266,20 @@ namespace Timetable
                 var teacherColumn = 0;
                 var val = "";
                 var ind = 0;
+                var isExam = false;
                 foreach (string s in mas)
                 {
                     if (s.Length > 0)
                     switch (s[0])
                         {
                             case 'Д':
-                                disciplineIndex = s;
+                                if (s.Contains(".1"))
+                                {
+                                    disciplineIndex = s.Replace(".1", "");
+                                    isExam = true;
+                                }
+                                else
+                                    disciplineIndex = s;
                                 break;
                             case 'П':
                                 teacherIndex = s;
@@ -285,9 +292,6 @@ namespace Timetable
 
                                     newWorksheetT.Cells[3, 4, endrow, 4].Copy(newWorksheetT.Cells[3, newCol, endrow, newCol]);
                                     newWorksheetT.Cells[3, newCol, endrow, newCol].Value = null;
-                                    //newWorksheetT.Cells[1, newCol, endrow, newCol].StyleID = newWorksheetT.Cells[1, 4, endrow, 4].StyleID;
-                                    //newWorksheetT.Column(newCol).
-                                    //newWorksheetT.Cells[3, newCol].StyleID = newWorksheetT.Cells[3, 4].StyleID;
                                     _dataContainer.Teachers[teacherIndex].Column = newCol;
                                     newWorksheetT.Cells[3, newCol].Value = _dataContainer
                                         .Teachers[teacherIndex].Name;
@@ -296,17 +300,20 @@ namespace Timetable
                                 if (newWorksheetT.Cells[row, teacherColumn].Value == null)
                                 {
                                     newWorksheetT.Cells[row, teacherColumn].Value =
-                                        _dataContainer.Disciplines[disciplineIndex] + Convert.ToChar(10) +
+                                        _dataContainer.Disciplines[disciplineIndex] +
+                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "") +
+                                        Convert.ToChar(10) +
                                         excelWorksheet.Cells[3, col].Value;
                                 }
                                 else
                                 {
                                     val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                                    ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex]);
+                                    ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + 
+                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : ""));
                                     var indbreak = -1;
                                     if (ind > -1)
                                     {
-                                        indbreak = val.IndexOf('\n', ind);
+                                        indbreak = val.IndexOf('\n', (isExam ? val.IndexOf('\n', ind) + 1 : ind));
                                         newWorksheetT.Cells[row, teacherColumn].Value =
                                                 val.Substring(0, indbreak + 1) +
                                                 excelWorksheet.Cells[3, col].Value + ", " +
@@ -315,19 +322,21 @@ namespace Timetable
                                     else
                                         newWorksheetT.Cells[row, teacherColumn].Value =
                                             val + Convert.ToChar(10) +
-                                            _dataContainer.Disciplines[disciplineIndex] + Convert.ToChar(10) +
+                                            _dataContainer.Disciplines[disciplineIndex] +
+                                            (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "") +
+                                            Convert.ToChar(10) +
                                             excelWorksheet.Cells[3, col].Value;
                                 }
                                 break;
                             case 'А':
                                 val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                                ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex]);
+                                ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : ""));
                                 var indaud = val.IndexOf(_dataContainer.Auditorium[s]);
                                 if (indaud == -1)
                                     newWorksheetT.Cells[row, teacherColumn].Value =
-                                        val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length) +
+                                        val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length + (isExam ? 8 : 0)) +
                                         ' ' + _dataContainer.Auditorium[s] +
-                                        val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length);
+                                        val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length + (isExam ? 8 : 0));
                                 break;
                         }
                 }
@@ -362,7 +371,12 @@ namespace Timetable
                             switch (s1[0])
                             {
                                 case 'Д':
-                                    result += (result == "" ? "" : " ") + _dataContainer.Disciplines[s1];
+                                    string discipline;
+                                    if (s1.Contains(".1"))
+                                        discipline = _dataContainer.Disciplines[s1.Replace(".1", "")] + Convert.ToChar(10) + "ЭКЗАМЕН";
+                                    else
+                                        discipline = _dataContainer.Disciplines[s1];
+                                    result += (result == "" ? "" : " ") + discipline;
                                     break;
                                 case 'П':
                                     result += (result == "" ? "" : " ") + _dataContainer.Teachers[s1].Name;
