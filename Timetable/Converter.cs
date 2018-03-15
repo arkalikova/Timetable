@@ -319,6 +319,7 @@ namespace Timetable
                                     newWorksheetT.Cells[3, 4, endrow, 4].Copy(newWorksheetT.Cells[3, newCol, endrow, newCol]);
                                     newWorksheetT.Cells[3, newCol, endrow, newCol].Value = null;
                                     _dataContainer.Teachers[teacherIndex].Column = newCol;
+                                    _dataContainer.Teachers[teacherIndex].IsNotificated = true;
                                     newWorksheetT.Cells[3, newCol].Value = _dataContainer
                                         .Teachers[teacherIndex].Name;
                                     teacherColumn = newCol;

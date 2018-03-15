@@ -15,9 +15,9 @@ namespace Timetable
             if (teachers.Count != 0)
             {
                 dgvTeachers.DataSource = teachers;
-                dgvTeachers.Columns["Преподаватель"].ReadOnly = true;
+                dgvTeachers.Columns["Name"].ReadOnly = true;
                 dgvTeachers.Columns["Email"].Visible = false;
-                dgvTeachers.Columns["Колонка"].Visible = false;
+                dgvTeachers.Columns["Column"].Visible = false;
                 SetChkFullState();
             }
         }
@@ -86,7 +86,7 @@ namespace Timetable
         {
             for (var i = 0; i < dgvTeachers.Rows.Count; i++)
             {
-                if (Convert.ToBoolean(dgvTeachers.Rows[i].Cells["Отправить письмо"].Value))
+                if (Convert.ToBoolean(dgvTeachers.Rows[i].Cells["isNotificated"].Value))
                     SendMailToTeacher(Convert.ToString(dgvTeachers.Rows[i].Cells["Email"].Value));
             }
         }
