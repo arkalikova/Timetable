@@ -43,7 +43,10 @@ namespace Timetable
             Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
             Workbook wb = excel.Workbooks.Open(resultS.File.FullName);
             foreach (Worksheet sh in wb.Sheets)
-                sh.Columns.AutoFit();
+            {
+                if (sh.Name == Settings.TeacherWorksheetName)
+                    sh.Columns.AutoFit();
+            }
             wb.SaveAs(resultS.File.FullName.Remove(resultS.File.FullName.Length - 1, 1), XlFileFormat.xlWorkbookDefault);
             excel.Quit();
             File.Delete(resultS.File.FullName);
@@ -51,7 +54,24 @@ namespace Timetable
             excel = new Microsoft.Office.Interop.Excel.Application();
             wb = excel.Workbooks.Open(resultT.File.FullName);
             foreach (Worksheet sh in wb.Sheets)
-                sh.Columns.AutoFit();
+            {
+                if (sh.Name == Settings.TeacherWorksheetName)
+                {
+                    /*Range last = sh.Cells.SpecialCells(XlCellType.xlCellTypeLastCell, Type.Missing);
+                    Range prev = sh.Cells[last.Row - 1, last.Column];
+                    Range merge = sh.Range["B1","G1"];
+                    merge.UnMerge();
+                    merge = sh.Range["B2", "G2"];
+                    merge.UnMerge();
+                    sh.Range["D3", prev.Address].Sort(sh.Cells[3, last.Column], XlSortOrder.xlAscending, Type.Missing, Type.Missing, XlSortOrder.xlAscending,
+                        Type.Missing, XlSortOrder.xlAscending, XlYesNoGuess.xlNo, Type.Missing, Type.Missing, XlSortOrientation.xlSortColumns);
+                    merge = sh.Range["B1", "G1"];
+                    merge.Merge();
+                    merge = sh.Range["B2", "G2"];
+                    merge.Merge();*/
+                    sh.Columns.AutoFit();
+                }
+            }
             wb.SaveAs(resultT.File.FullName.Remove(resultT.File.FullName.Length - 1, 1), XlFileFormat.xlWorkbookDefault);
             excel.Quit();
             File.Delete(resultT.File.FullName);
@@ -74,7 +94,8 @@ namespace Timetable
                 if (excelWorksheet.Name != Settings.TeacherWorksheetName &&
                     excelWorksheet.Name != Settings.DisciplinesWorksheetName &&
                     excelWorksheet.Name != Settings.TimesWorksheetName &&
-                    excelWorksheet.Name != Settings.AuditoriaWorksheetName)
+                    excelWorksheet.Name != Settings.AuditoriaWorksheetName &&
+                    excelWorksheet.Name != Settings.CardWorksheetName)
                 {
                     //копируем лист для студентов
                     var newWorksheet = resultS.Workbook.Worksheets.Add(excelWorksheet.Name, excelWorksheet);
@@ -125,6 +146,7 @@ namespace Timetable
                 }
                 progressBar.Value += tmp / (newWorksheetT.Dimension.End.Row - 3);
             }
+            newWorksheetT.Cells[1, 1].Value = newWorksheetT.Cells[1, 1].Value;
             progressBar.Value = 100;
         }
 
@@ -267,6 +289,10 @@ namespace Timetable
                 var val = "";
                 var ind = 0;
                 var isExam = false;
+                ExcelWorksheet cardsheet;
+                var cardrowdate = 4;
+                var cardrowclass = 5;
+                var cardrowgroups = 6;
                 foreach (string s in mas)
                 {
                     if (s.Length > 0)
@@ -296,6 +322,13 @@ namespace Timetable
                                     newWorksheetT.Cells[3, newCol].Value = _dataContainer
                                         .Teachers[teacherIndex].Name;
                                     teacherColumn = newCol;
+
+                                    //карточка
+                                    cardsheet = newWorksheetT.Workbook.Worksheets.Add(newWorksheetT.Cells[3, newCol].Value.ToString(),
+                                        excelWorksheet.Workbook.Worksheets[Settings.CardWorksheetName]);
+                                    cardsheet.Cells[8, 1].Value = cardsheet.Cells[8, 1].Value.ToString()
+                                        + newWorksheetT.Cells[3, newCol].Value;
+                                    cardsheet.Cells[9, 1].Value = "     " + newWorksheetT.Cells[2, 2].Value;
                                 }
                                 if (newWorksheetT.Cells[row, teacherColumn].Value == null)
                                 {
@@ -304,6 +337,40 @@ namespace Timetable
                                         (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "") +
                                         Convert.ToChar(10) +
                                         excelWorksheet.Cells[3, col].Value;
+
+                                    //карточка
+                                    cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
+                                    var curday = FindDay(row, newWorksheetT);
+                                    cardrowdate = FindDate(cardsheet);
+                                    cardrowclass = FindClass(cardsheet);
+                                    cardrowgroups = FindGroup(cardsheet);
+                                    if (cardsheet.Cells[cardrowdate,1].Value==null)
+                                    {
+                                        cardsheet.Cells[cardrowdate, 1].Value = curday;
+                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value;
+                                    }
+                                    else if (cardsheet.Cells[cardrowdate, 1].Value == curday)
+                                    {
+                                        cardsheet.InsertRow(cardrowgroups + 1, 1, cardrowgroups);
+                                        cardrowgroups++;
+                                    }
+                                    else
+                                    {
+                                        cardsheet.InsertRow(cardrowgroups + 1, 1, cardrowdate);
+                                        cardrowdate = cardrowgroups + 1;
+                                        cardsheet.Cells[cardrowdate, 1, cardrowdate, 3].Merge = true;
+                                        cardsheet.InsertRow(cardrowdate + 1, 1, cardrowclass);
+                                        cardrowclass = cardrowdate + 1;
+                                        cardsheet.Cells[cardrowclass, 2, cardrowclass, 3].Merge = true;
+                                        cardsheet.InsertRow(cardrowclass + 1, 1, cardrowgroups);
+                                        cardrowgroups = cardrowclass + 1;
+                                        cardsheet.Cells[cardrowdate, 1].Value = curday;
+                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value;
+                                    }
+                                    cardsheet.Cells[cardrowgroups, 3].Value =
+                                        excelWorksheet.Cells[3, col].Value + ", " +
+                                        _dataContainer.Disciplines[disciplineIndex] +
+                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "");
                                 }
                                 else
                                 {
@@ -326,6 +393,14 @@ namespace Timetable
                                             (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "") +
                                             Convert.ToChar(10) +
                                             excelWorksheet.Cells[3, col].Value;
+
+                                    //карточка
+                                    cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
+                                    cardsheet.InsertRow(cardsheet.Dimension.End.Row - 4, 1, cardsheet.Dimension.End.Row - 5);
+                                    cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value =
+                                        excelWorksheet.Cells[3, col].Value + ", " +
+                                        _dataContainer.Disciplines[disciplineIndex] +
+                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "");
                                 }
                                 break;
                             case 'А':
@@ -337,6 +412,11 @@ namespace Timetable
                                         val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length + (isExam ? 8 : 0)) +
                                         ' ' + _dataContainer.Auditorium[s] +
                                         val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length + (isExam ? 8 : 0));
+                                
+                                //карточка
+                                cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
+                                cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value =
+                                    cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value + " " + _dataContainer.Auditorium[s];
                                 break;
                         }
                 }
@@ -345,6 +425,38 @@ namespace Timetable
                 var res = val.Length - val.Replace("\n", "").Length;
                 maxbreakT = (res > maxbreakT ? res : maxbreakT);
             }
+        }
+
+        private static int FindGroup(ExcelWorksheet cardsheet)
+        {
+            var temprow = cardsheet.Dimension.End.Row - 5;
+            while ((cardsheet.Cells[temprow, 3].Value == null) && (temprow > 6))
+                temprow--;
+            return temprow;
+        }
+
+        private static int FindClass(ExcelWorksheet cardsheet)
+        {
+            var temprow = cardsheet.Dimension.End.Row - 5;
+            while ((cardsheet.Cells[temprow, 2].Value == null) && (temprow > 5))
+                temprow--;
+            return temprow;
+        }
+
+        private static int FindDate(ExcelWorksheet cardsheet)
+        {
+            var temprow = cardsheet.Dimension.End.Row - 5;
+            while ((cardsheet.Cells[temprow, 1].Value == null) && (temprow > 4))
+                temprow--;
+            return temprow;
+        }
+
+        private static object FindDay(int row, ExcelWorksheet worsheet)
+        {
+            var temprow = row;
+            while (worsheet.Cells[temprow, 1].Value == null)
+                temprow--;
+            return worsheet.Cells[temprow, 1].Value;
         }
 
         private static void ChangeStudentCellValue(
