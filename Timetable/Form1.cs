@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 using System.Configuration;
+using System.Linq;
 
 namespace Timetable
 {
@@ -10,7 +11,7 @@ namespace Timetable
         private FileInfo _filePathToStudents;
         private FileInfo _filePathToTeachers;
         private DataContainer _dataContainer;
-        private Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         public Form1()
         {
@@ -47,6 +48,7 @@ namespace Timetable
                     MessageBox.Show(Settings.SuccessConvertationMessage);
                     btnOpenStudents.Enabled = true;
                     btnOpenTeachers.Enabled = true;
+                    btnSend.Enabled = true;
                 }
                 catch (IOException)
                 {
@@ -81,10 +83,10 @@ namespace Timetable
 
         private void DeleteFilesIfExist()
         {
-            string st = _filePathToStudents.FullName.Remove(_filePathToStudents.FullName.Length - 1);
+            var st = _filePathToStudents.FullName.Remove(_filePathToStudents.FullName.Length - 1);
             if (File.Exists(st))
                 File.Delete(st);
-            string th = _filePathToTeachers.FullName.Remove(_filePathToTeachers.FullName.Length - 1);
+            var th = _filePathToTeachers.FullName.Remove(_filePathToTeachers.FullName.Length - 1);
             if (File.Exists(th))
                 File.Delete(th);
         }
@@ -92,13 +94,13 @@ namespace Timetable
 
         private void btnChoosePath_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            var fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() == DialogResult.OK)
             {
                 txtPath.Text = fbd.SelectedPath;
-                config.AppSettings.Settings.Remove("SavePath");
-                config.AppSettings.Settings.Add("SavePath", fbd.SelectedPath);
-                config.Save(ConfigurationSaveMode.Modified);
+                _config.AppSettings.Settings.Remove("SavePath");
+                _config.AppSettings.Settings.Add("SavePath", fbd.SelectedPath);
+                _config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
             }
         }
@@ -120,11 +122,16 @@ namespace Timetable
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            FormSend frm = new FormSend();
-            frm.dgvTeachers.DataSource = _dataContainer.Teachers.Values;
-            frm.Parent = this;
-            this.Enabled = false;
-            frm.Show();
+            var readOnlyCollection = _dataContainer.Teachers.Values.ToList();
+            if (readOnlyCollection.Count != 0)
+            {
+                var frm = new FormSend(readOnlyCollection);
+                frm.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show(Settings.FailedSendEmailMessage);
+            }
         }
     }
 }

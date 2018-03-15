@@ -8,6 +8,7 @@
         public static readonly string AuditoriaWorksheetName = "Аудитории";
         public static readonly string CardWorksheetName = "Карточка";
         public static readonly string SuccessConvertationMessage = "Экспортирование завершено";
+        public static readonly string FailedSendEmailMessage = "Не удалось получить список преподавателей из шаблона.";
         public static readonly string FailedConvertationMessage = "Файлы с шаблоном или расписаниями уже используется. Закройте их и повторите попытку.";
         public static readonly string FailedFoundListMessage = @"Произошла ошибка!
 Возможные причины:
