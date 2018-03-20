@@ -39,7 +39,7 @@ namespace Timetable
 
                 try
                 {
-                    DeleteFilesIfExist();
+                    //DeleteFilesIfExist();
                     progressBar1.Increment(10);
                     progressBar1.Increment(7);
 
@@ -112,12 +112,12 @@ namespace Timetable
 
         private void btnOpenStudents_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(_filePathToStudents.FullName.Remove(_filePathToStudents.FullName.Length - 1));
+            System.Diagnostics.Process.Start(_filePathToStudents.DirectoryName + "\\" + Converter.Filename + ".xls");
         }
 
         private void btnOpenTeachers_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(_filePathToTeachers.FullName.Remove(_filePathToTeachers.FullName.Length - 1));
+            System.Diagnostics.Process.Start(_filePathToTeachers.DirectoryName + "\\Карточка_" + Converter.Filename + ".xls");
         }
 
         private void btnSend_Click(object sender, EventArgs e)

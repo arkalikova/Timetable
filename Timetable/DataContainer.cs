@@ -13,11 +13,13 @@ namespace Timetable
             Time = new Dictionary<int, string>();
             Groups = new Dictionary<int, string>();
             Auditorium = new Dictionary<string, string>();
+            SubDisciplines = new Dictionary<string, string>();
         }
 
         public void ClearDictionaries()
         {
             Disciplines.Clear();
+            SubDisciplines.Clear();
             Groups.Clear();
             Teachers.Clear();
             Time.Clear();
@@ -76,10 +78,31 @@ namespace Timetable
             }
         }
 
+        public static void AddSubDiscipline(
+            ExcelWorkbook workbook,
+            IDictionary<string, string> dictionary,
+            string worksheetName)
+        {
+            var worksheet = workbook.Worksheets[worksheetName];
+            var startRow = worksheet.Dimension.Start.Row;
+            var endRow = worksheet.Dimension.End.Row;
+            for (var i = startRow + 1; i <= endRow; i++)
+            {
+                if (worksheet.Cells[i, 4].Value != null)
+                {
+                    var key = worksheet.Cells[i, 4].Value.ToString();
+                    var worksheetValue = (worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString());
+
+                    dictionary.Add(key, worksheetValue);
+                }
+            }
+        }
+
         public Dictionary<string, Teacher> Teachers { get; set; }
         public Dictionary<string, string> Disciplines { get; set; }
         public Dictionary<int, string> Time { get; set; }
         public Dictionary<int, string> Groups { get; set; }
         public Dictionary<string, string> Auditorium { get; set; }
+        public Dictionary<string, string> SubDisciplines { get; set; }
     }
 }

@@ -6,12 +6,15 @@ using OfficeOpenXml;
 using Microsoft.Office.Interop.Excel;
 using System.Collections.Generic;
 using OfficeOpenXml.Style;
+using System.Globalization;
 
 namespace Timetable
 {
     internal class Converter
     {
         private static DataContainer _dataContainer;
+        static DateTime saveDate;
+        public static string Filename;
         public static void ConvertTemplateToResult(
             ref DataContainer dataContainer,
             FileInfo fiFrom,
@@ -42,37 +45,31 @@ namespace Timetable
             resultS.Save();
             Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
             Workbook wb = excel.Workbooks.Open(resultS.File.FullName);
+            excel.DisplayAlerts = false;
+            wb.CheckCompatibility = false;
+            wb.DoNotPromptForConvert = true;
             foreach (Worksheet sh in wb.Sheets)
             {
                 if (sh.Name == Settings.TeacherWorksheetName)
                     sh.Columns.AutoFit();
             }
-            wb.SaveAs(resultS.File.FullName.Remove(resultS.File.FullName.Length - 1, 1), XlFileFormat.xlWorkbookDefault);
+            wb.SaveAs(resultS.File.DirectoryName + "\\" + Filename, XlFileFormat.xlExcel8);
             excel.Quit();
             File.Delete(resultS.File.FullName);
             resultT.Save();
             excel = new Microsoft.Office.Interop.Excel.Application();
             wb = excel.Workbooks.Open(resultT.File.FullName);
+            excel.DisplayAlerts = false;
+            wb.CheckCompatibility = false;
+            wb.DoNotPromptForConvert = true;
             foreach (Worksheet sh in wb.Sheets)
             {
                 if (sh.Name == Settings.TeacherWorksheetName)
                 {
-                    /*Range last = sh.Cells.SpecialCells(XlCellType.xlCellTypeLastCell, Type.Missing);
-                    Range prev = sh.Cells[last.Row - 1, last.Column];
-                    Range merge = sh.Range["B1","G1"];
-                    merge.UnMerge();
-                    merge = sh.Range["B2", "G2"];
-                    merge.UnMerge();
-                    sh.Range["D3", prev.Address].Sort(sh.Cells[3, last.Column], XlSortOrder.xlAscending, Type.Missing, Type.Missing, XlSortOrder.xlAscending,
-                        Type.Missing, XlSortOrder.xlAscending, XlYesNoGuess.xlNo, Type.Missing, Type.Missing, XlSortOrientation.xlSortColumns);
-                    merge = sh.Range["B1", "G1"];
-                    merge.Merge();
-                    merge = sh.Range["B2", "G2"];
-                    merge.Merge();*/
                     sh.Columns.AutoFit();
                 }
             }
-            wb.SaveAs(resultT.File.FullName.Remove(resultT.File.FullName.Length - 1, 1), XlFileFormat.xlWorkbookDefault);
+            wb.SaveAs(resultS.File.DirectoryName + "\\Карточка_" +Filename, XlFileFormat.xlExcel8);
             excel.Quit();
             File.Delete(resultT.File.FullName);
         }
@@ -106,6 +103,10 @@ namespace Timetable
                             .Workbook
                             .Worksheets
                             .Add(Settings.TeacherWorksheetName, excelWorksheet);
+                        int SerialDate = Convert.ToInt32((double)excelWorksheet.Cells[4, 1].Value);
+                        if (SerialDate > 59) SerialDate -= 1; //Excel/Lotus 2/29/1900 bug   
+                        saveDate = new DateTime(1899, 12, 31).AddDays(SerialDate);
+                        Filename = $"{CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(saveDate.Month)} ({saveDate.AddDays(4).Day.ToString()}, {saveDate.AddDays(5).Day.ToString()})";
                     }
                     else
                     {
@@ -119,15 +120,22 @@ namespace Timetable
                     ConvertWorksheet(newWorksheet, newWorksheetT, excelWorksheet,
                         flag, endRow, endCol, ref newCol, progressBar, ref deletingRows);
                     newWorksheetT.Cells[3, newCol + 1, endRow, endCol].Clear();
+                    newWorksheet.Cells.Calculate();
+                    foreach (var cell in newWorksheet.Cells.Where(cell => cell.Formula != null))
+                        cell.Value = cell.Value;
                     deletingRows.Sort((a, b) => -1 * a.CompareTo(b));
                     foreach (int l in deletingRows)
                     {
                         SetBorderStyle(newWorksheet, endCol, l);
                         newWorksheet.DeleteRow(l);
                     }
+                    newWorksheet.Cells[1, 1].Value = newWorksheet.Cells[1, 1].Value;
                 }
             }
             int tmp = 100 - progressBar.Value;
+            newWorksheetT.Cells.Calculate();
+            foreach (var cell in newWorksheetT.Cells.Where(cell => cell.Formula != null))
+                cell.Value = cell.Value;
             for (int row = newWorksheetT.Dimension.End.Row; row >=4 ; row--)
             {
                 var isNullRow = true;
@@ -252,6 +260,7 @@ namespace Timetable
             DataContainer.AddTeachers(workbook, _dataContainer.Teachers, Settings.TeacherWorksheetName);
             progressBar.Increment(10);
             DataContainer.AddToDataContainerDictionaries(workbook, _dataContainer.Disciplines, Settings.DisciplinesWorksheetName);
+            DataContainer.AddSubDiscipline(workbook, _dataContainer.SubDisciplines, Settings.DisciplinesWorksheetName);
             progressBar.Increment(9);
             DataContainer.AddToDataContainerDictionaries(workbook, _dataContainer.Time, Settings.TimesWorksheetName);
             progressBar.Increment(8);
@@ -284,11 +293,12 @@ namespace Timetable
                     .Replace(" ","")
                     .Split(';',',');
                 var disciplineIndex = "";
+                var subdisciplineIndex = "";
                 var teacherIndex = "";
                 var teacherColumn = 0;
                 var val = "";
                 var ind = 0;
-                var isExam = false;
+                var isSubDiscipline = false;
                 ExcelWorksheet cardsheet;
                 var cardrowdate = 4;
                 var cardrowclass = 5;
@@ -299,13 +309,18 @@ namespace Timetable
                     switch (s[0])
                         {
                             case 'Д':
-                                if (s.Contains(".1"))
+                                if (s.Contains("."))
                                 {
-                                    disciplineIndex = s.Replace(".1", "");
-                                    isExam = true;
+                                    disciplineIndex = s.Split('.')[0];
+                                    subdisciplineIndex = '.' + s.Split('.')[1];
+                                    isSubDiscipline = true;
                                 }
                                 else
+                                {
                                     disciplineIndex = s;
+                                    subdisciplineIndex = "";
+                                    isSubDiscipline = false;
+                                }
                                 break;
                             case 'П':
                                 teacherIndex = s;
@@ -335,7 +350,7 @@ namespace Timetable
                                 {
                                     newWorksheetT.Cells[row, teacherColumn].Value =
                                         _dataContainer.Disciplines[disciplineIndex] +
-                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "") +
+                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "") +
                                         Convert.ToChar(10) +
                                         excelWorksheet.Cells[3, col].Value;
 
@@ -371,17 +386,17 @@ namespace Timetable
                                     cardsheet.Cells[cardrowgroups, 3].Value =
                                         excelWorksheet.Cells[3, col].Value + ", " +
                                         _dataContainer.Disciplines[disciplineIndex] +
-                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "");
+                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "");
                                 }
                                 else
                                 {
                                     val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
                                     ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + 
-                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : ""));
+                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : ""));
                                     var indbreak = -1;
                                     if (ind > -1)
                                     {
-                                        indbreak = val.IndexOf('\n', (isExam ? val.IndexOf('\n', ind) + 1 : ind));
+                                        indbreak = val.IndexOf('\n', /*(isSubDiscipline ? val.IndexOf('\n', ind) + 1 :*/ ind);
                                         newWorksheetT.Cells[row, teacherColumn].Value =
                                                 val.Substring(0, indbreak + 1) +
                                                 excelWorksheet.Cells[3, col].Value + ", " +
@@ -391,7 +406,7 @@ namespace Timetable
                                         newWorksheetT.Cells[row, teacherColumn].Value =
                                             val + Convert.ToChar(10) +
                                             _dataContainer.Disciplines[disciplineIndex] +
-                                            (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "") +
+                                            (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "") +
                                             Convert.ToChar(10) +
                                             excelWorksheet.Cells[3, col].Value;
 
@@ -401,18 +416,20 @@ namespace Timetable
                                     cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value =
                                         excelWorksheet.Cells[3, col].Value + ", " +
                                         _dataContainer.Disciplines[disciplineIndex] +
-                                        (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : "");
+                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "");
                                 }
                                 break;
                             case 'А':
                                 val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                                ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + (isExam ? Convert.ToChar(10) + "ЭКЗАМЕН" : ""));
+                                ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : ""));
                                 var indaud = val.IndexOf(_dataContainer.Auditorium[s]);
                                 if (indaud == -1)
                                     newWorksheetT.Cells[row, teacherColumn].Value =
-                                        val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length + (isExam ? 8 : 0)) +
+                                        val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length + 
+                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex].Length : 0)) +
                                         ' ' + _dataContainer.Auditorium[s] +
-                                        val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length + (isExam ? 8 : 0));
+                                        val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length + 
+                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex].Length : 0));
                                 
                                 //карточка
                                 cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
@@ -485,8 +502,8 @@ namespace Timetable
                             {
                                 case 'Д':
                                     string discipline;
-                                    if (s1.Contains(".1"))
-                                        discipline = _dataContainer.Disciplines[s1.Replace(".1", "")] + Convert.ToChar(10) + "ЭКЗАМЕН";
+                                    if (s1.Contains("."))
+                                        discipline = _dataContainer.Disciplines[s1.Split('.')[0]] + _dataContainer.SubDisciplines['.' + s1.Split('.')[1]];
                                     else
                                         discipline = _dataContainer.Disciplines[s1];
                                     result += (result == "" ? "" : " ") + discipline;
