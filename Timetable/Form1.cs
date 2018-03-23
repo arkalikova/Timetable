@@ -45,6 +45,9 @@ namespace Timetable
 
                     Converter.ConvertTemplateToResult(ref _dataContainer, fiFrom, _filePathToStudents, _filePathToTeachers, progressBar1);
 
+                    _filePathToStudents = new FileInfo(_filePathToStudents.DirectoryName + "\\" + Converter.Filename + ".xls");
+                    _filePathToTeachers = new FileInfo(_filePathToTeachers.DirectoryName + "\\Карточка_" + Converter.Filename + ".xls");
+
                     MessageBox.Show(Settings.SuccessConvertationMessage);
                     btnOpenStudents.Enabled = true;
                     btnOpenTeachers.Enabled = true;
@@ -112,12 +115,12 @@ namespace Timetable
 
         private void btnOpenStudents_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(_filePathToStudents.DirectoryName + "\\" + Converter.Filename + ".xls");
+            System.Diagnostics.Process.Start(_filePathToStudents.FullName);
         }
 
         private void btnOpenTeachers_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(_filePathToTeachers.DirectoryName + "\\Карточка_" + Converter.Filename + ".xls");
+            System.Diagnostics.Process.Start(_filePathToTeachers.FullName);
         }
 
         private void btnSend_Click(object sender, EventArgs e)
