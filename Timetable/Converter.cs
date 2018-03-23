@@ -94,6 +94,8 @@ namespace Timetable
                     excelWorksheet.Name != Settings.AuditoriaWorksheetName &&
                     excelWorksheet.Name != Settings.CardWorksheetName)
                 {
+                    var endRow = excelWorksheet.Dimension.End.Row;
+                    var endCol = excelWorksheet.Dimension.End.Column;
                     //копируем лист для студентов
                     var newWorksheet = resultS.Workbook.Worksheets.Add(excelWorksheet.Name, excelWorksheet);
                     //проверяем наличие листа в преподавтелях
@@ -103,6 +105,7 @@ namespace Timetable
                             .Workbook
                             .Worksheets
                             .Add(Settings.TeacherWorksheetName, excelWorksheet);
+                        newWorksheetT.Cells[3, 4, endRow, endCol].Value = null;
                         int SerialDate = Convert.ToInt32((double)excelWorksheet.Cells[4, 1].Value);
                         if (SerialDate > 59) SerialDate -= 1; //Excel/Lotus 2/29/1900 bug   
                         saveDate = new DateTime(1899, 12, 31).AddDays(SerialDate);
@@ -113,13 +116,11 @@ namespace Timetable
                         flag = false;
                     }
 
-                    var endRow = excelWorksheet.Dimension.End.Row;
-                    var endCol = excelWorksheet.Dimension.End.Column;
                     progressBar.Increment(10);
 
                     ConvertWorksheet(newWorksheet, newWorksheetT, excelWorksheet,
                         flag, endRow, endCol, ref newCol, progressBar, ref deletingRows);
-                    newWorksheetT.Cells[3, newCol + 1, endRow, endCol].Clear();
+                    //newWorksheetT.Cells[3, newCol + 1, endRow, newWorksheetT.Dimension.End.Column].Clear();
                     newWorksheet.Cells.Calculate();
                     foreach (var cell in newWorksheet.Cells.Where(cell => cell.Formula != null))
                         cell.Value = cell.Value;
@@ -328,22 +329,39 @@ namespace Timetable
                                 if (teacherColumn == 0)
                                 {
                                     newCol++;
+                                    int tek = newCol;
 
                                     var endrow = newWorksheetT.Dimension.End.Row;
 
-                                    newWorksheetT.Cells[3, 4, endrow, 4].Copy(newWorksheetT.Cells[3, newCol, endrow, newCol]);
-                                    newWorksheetT.Cells[3, newCol, endrow, newCol].Value = null;
-                                    _dataContainer.Teachers[teacherIndex].Column = newCol;
+                                    while ((tek > 4) && (string.Compare(newWorksheetT.Cells[3, tek - 1].Value.ToString(),
+                                        _dataContainer.Teachers[teacherIndex].Name, true) > 0))
+                                    {
+                                        _dataContainer.Teachers.First(t => t.Value.Name == 
+                                            newWorksheetT.Cells[3, tek - 1].Value.ToString()).Value.Column++;
+                                        newWorksheetT.Cells[3, tek - 1, endrow, tek - 1].Copy(newWorksheetT.Cells[3, tek, endrow, tek]);
+                                        newWorksheetT.Cells[3, tek - 1, endrow, tek - 1].Value = null;
+                                        tek--;
+                                    }
+
+                                    if (tek != 4)
+                                    {
+                                        newWorksheetT.Cells[3, tek - 1, endrow, tek - 1].Copy(newWorksheetT.Cells[3, tek, endrow, tek]);
+                                        newWorksheetT.Cells[3, tek, endrow, tek].Value = null;
+                                    }
+                                    _dataContainer.Teachers[teacherIndex].Column = tek;
                                     _dataContainer.Teachers[teacherIndex].IsNotificated = true;
-                                    newWorksheetT.Cells[3, newCol].Value = _dataContainer
+                                    newWorksheetT.Cells[3, tek].Value = _dataContainer
                                         .Teachers[teacherIndex].Name;
-                                    teacherColumn = newCol;
+                                    teacherColumn = tek;
 
                                     //карточка
-                                    cardsheet = newWorksheetT.Workbook.Worksheets.Add(newWorksheetT.Cells[3, newCol].Value.ToString(),
+                                    cardsheet = newWorksheetT.Workbook.Worksheets.Add(newWorksheetT.Cells[3, tek].Value.ToString(),
                                         excelWorksheet.Workbook.Worksheets[Settings.CardWorksheetName]);
+                                    if (tek != 4)
+                                        newWorksheetT.Workbook.Worksheets.MoveAfter(newWorksheetT.Cells[3, tek].Value.ToString(),
+                                            newWorksheetT.Cells[3, tek - 1].Value.ToString());
                                     cardsheet.Cells[8, 1].Value = cardsheet.Cells[8, 1].Value.ToString()
-                                        + newWorksheetT.Cells[3, newCol].Value;
+                                        + newWorksheetT.Cells[3, tek].Value;
                                     cardsheet.Cells[9, 1].Value = "     " + newWorksheetT.Cells[2, 2].Value;
                                 }
                                 if (newWorksheetT.Cells[row, teacherColumn].Value == null)
