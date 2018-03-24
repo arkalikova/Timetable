@@ -381,7 +381,8 @@ namespace Timetable
                                     if (cardsheet.Cells[cardrowdate,1].Value==null)
                                     {
                                         cardsheet.Cells[cardrowdate, 1].Value = curday;
-                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value;
+                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value +
+                                            $" ({_dataContainer.Time[Convert.ToInt32((double)excelWorksheet.Cells[row, 3].Value)]})";
                                     }
                                     else if (cardsheet.Cells[cardrowdate, 1].Value == curday)
                                     {
@@ -399,7 +400,8 @@ namespace Timetable
                                         cardsheet.InsertRow(cardrowclass + 1, 1, cardrowgroups);
                                         cardrowgroups = cardrowclass + 1;
                                         cardsheet.Cells[cardrowdate, 1].Value = curday;
-                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value;
+                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value +
+                                            $" ({_dataContainer.Time[Convert.ToInt32((double)excelWorksheet.Cells[row, 3].Value)]})";
                                     }
                                     cardsheet.Cells[cardrowgroups, 3].Value =
                                         excelWorksheet.Cells[3, col].Value + ", " +
