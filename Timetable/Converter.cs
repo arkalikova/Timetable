@@ -273,6 +273,7 @@ namespace Timetable
         {
             _dataContainer.Teachers.Clear();
             _dataContainer.Disciplines.Clear();
+            _dataContainer.SubDisciplines.Clear();
             _dataContainer.Time.Clear();
             _dataContainer.Auditorium.Clear();
             _dataContainer.Groups.Clear();
@@ -294,6 +295,7 @@ namespace Timetable
                     .Replace(" ","")
                     .Split(';',',');
                 var disciplineIndex = "";
+                var discipline = "";
                 var subdisciplineIndex = "";
                 var teacherIndex = "";
                 var teacherColumn = 0;
@@ -322,6 +324,7 @@ namespace Timetable
                                     subdisciplineIndex = "";
                                     isSubDiscipline = false;
                                 }
+                                discipline = _dataContainer.Disciplines[disciplineIndex];
                                 break;
                             case 'П':
                                 teacherIndex = s;
@@ -367,7 +370,7 @@ namespace Timetable
                                 if (newWorksheetT.Cells[row, teacherColumn].Value == null)
                                 {
                                     newWorksheetT.Cells[row, teacherColumn].Value =
-                                        _dataContainer.Disciplines[disciplineIndex] +
+                                        discipline +
                                         (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "") +
                                         Convert.ToChar(10) +
                                         excelWorksheet.Cells[3, col].Value;
@@ -405,13 +408,13 @@ namespace Timetable
                                     }
                                     cardsheet.Cells[cardrowgroups, 3].Value =
                                         excelWorksheet.Cells[3, col].Value + ", " +
-                                        _dataContainer.Disciplines[disciplineIndex] +
+                                        discipline +
                                         (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "");
                                 }
                                 else
                                 {
                                     val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                                    ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + 
+                                    ind = val.IndexOf(discipline + 
                                         (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : ""));
                                     var indbreak = -1;
                                     if (ind > -1)
@@ -425,7 +428,7 @@ namespace Timetable
                                     else
                                         newWorksheetT.Cells[row, teacherColumn].Value =
                                             val + Convert.ToChar(10) +
-                                            _dataContainer.Disciplines[disciplineIndex] +
+                                            discipline +
                                             (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "") +
                                             Convert.ToChar(10) +
                                             excelWorksheet.Cells[3, col].Value;
@@ -435,33 +438,39 @@ namespace Timetable
                                     cardsheet.InsertRow(cardsheet.Dimension.End.Row - 4, 1, cardsheet.Dimension.End.Row - 5);
                                     cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value =
                                         excelWorksheet.Cells[3, col].Value + ", " +
-                                        _dataContainer.Disciplines[disciplineIndex] +
+                                        discipline +
                                         (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : "");
                                 }
                                 break;
                             case 'А':
-                                val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                                ind = val.IndexOf(_dataContainer.Disciplines[disciplineIndex] + (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : ""));
-                                var indaud = val.IndexOf(_dataContainer.Auditorium[s]);
-                                if (indaud == -1)
-                                    newWorksheetT.Cells[row, teacherColumn].Value =
-                                        val.Substring(0, ind + _dataContainer.Disciplines[disciplineIndex].Length + 
-                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex].Length : 0)) +
-                                        ' ' + _dataContainer.Auditorium[s] +
-                                        val.Substring(ind + _dataContainer.Disciplines[disciplineIndex].Length + 
-                                        (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex].Length : 0));
-                                
-                                //карточка
-                                cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
-                                cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value =
-                                    cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value + " " + _dataContainer.Auditorium[s];
+                                if (teacherColumn != 0)
+                                {
+                                    val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
+                                    ind = val.IndexOf(discipline + (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex] : ""));
+                                    var indaud = val.IndexOf(_dataContainer.Auditorium[s]);
+                                    if (indaud == -1)
+                                        newWorksheetT.Cells[row, teacherColumn].Value =
+                                            val.Substring(0, ind + discipline.Length +
+                                            (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex].Length : 0)) +
+                                            ' ' + _dataContainer.Auditorium[s] +
+                                            val.Substring(ind + discipline.Length +
+                                            (isSubDiscipline ? _dataContainer.SubDisciplines[subdisciplineIndex].Length : 0));
+
+                                    //карточка
+                                    cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
+                                    cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value =
+                                        cardsheet.Cells[cardsheet.Dimension.End.Row - 5, 3].Value + " " + _dataContainer.Auditorium[s];
+                                }
                                 break;
                         }
                 }
-                newWorksheetT.Column(teacherColumn).Width = 75;
-                val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
-                var res = val.Length - val.Replace("\n", "").Length;
-                maxbreakT = (res > maxbreakT ? res : maxbreakT);
+                if (teacherColumn != 0)
+                {
+                    newWorksheetT.Column(teacherColumn).Width = 75;
+                    val = newWorksheetT.Cells[row, teacherColumn].Value.ToString();
+                    var res = val.Length - val.Replace("\n", "").Length;
+                    maxbreakT = (res > maxbreakT ? res : maxbreakT);
+                }
             }
         }
 
