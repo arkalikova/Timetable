@@ -125,10 +125,10 @@ namespace Timetable
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            var readOnlyCollection = _dataContainer.Teachers.Values.ToList();
+            var readOnlyCollection = _dataContainer.Teachers.Values.Where(x => x.Name != string.Empty).ToList();
             if (readOnlyCollection.Count != 0)
             {
-                var frm = new FormSend(readOnlyCollection);
+                var frm = new FormSend(readOnlyCollection, _filePathToTeachers.FullName);
                 frm.ShowDialog();
             }
             else
