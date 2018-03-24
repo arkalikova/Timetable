@@ -38,10 +38,9 @@
             // rtbText
             // 
             this.rtbText.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.rtbText.Location = new System.Drawing.Point(0, 262);
-            this.rtbText.Margin = new System.Windows.Forms.Padding(4);
+            this.rtbText.Location = new System.Drawing.Point(0, 221);
             this.rtbText.Name = "rtbText";
-            this.rtbText.Size = new System.Drawing.Size(748, 168);
+            this.rtbText.Size = new System.Drawing.Size(561, 128);
             this.rtbText.TabIndex = 0;
             this.rtbText.Text = "";
             // 
@@ -51,12 +50,10 @@
             this.dgvTeachers.AllowUserToDeleteRows = false;
             this.dgvTeachers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvTeachers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvTeachers.Dock = System.Windows.Forms.DockStyle.Left;
             this.dgvTeachers.Location = new System.Drawing.Point(0, 0);
-            this.dgvTeachers.Margin = new System.Windows.Forms.Padding(4);
             this.dgvTeachers.Name = "dgvTeachers";
             this.dgvTeachers.RowHeadersVisible = false;
-            this.dgvTeachers.Size = new System.Drawing.Size(425, 262);
+            this.dgvTeachers.Size = new System.Drawing.Size(319, 223);
             this.dgvTeachers.TabIndex = 1;
             this.dgvTeachers.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvTeachers_CellValueChanged);
             // 
@@ -65,10 +62,9 @@
             this.chbFull.AutoSize = true;
             this.chbFull.Checked = true;
             this.chbFull.CheckState = System.Windows.Forms.CheckState.Indeterminate;
-            this.chbFull.Location = new System.Drawing.Point(433, 15);
-            this.chbFull.Margin = new System.Windows.Forms.Padding(4);
+            this.chbFull.Location = new System.Drawing.Point(325, 12);
             this.chbFull.Name = "chbFull";
-            this.chbFull.Size = new System.Drawing.Size(248, 21);
+            this.chbFull.Size = new System.Drawing.Size(196, 17);
             this.chbFull.TabIndex = 2;
             this.chbFull.Text = "Отметитиь все/Снять выделение";
             this.chbFull.UseVisualStyleBackColor = true;
@@ -76,10 +72,9 @@
             // 
             // btnSend
             // 
-            this.btnSend.Location = new System.Drawing.Point(433, 43);
-            this.btnSend.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSend.Location = new System.Drawing.Point(325, 35);
             this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(192, 28);
+            this.btnSend.Size = new System.Drawing.Size(144, 23);
             this.btnSend.TabIndex = 4;
             this.btnSend.Text = "Отправить расписание";
             this.btnSend.UseVisualStyleBackColor = true;
@@ -87,14 +82,13 @@
             // 
             // FormSend
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(748, 430);
+            this.ClientSize = new System.Drawing.Size(561, 349);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.chbFull);
             this.Controls.Add(this.dgvTeachers);
             this.Controls.Add(this.rtbText);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FormSend";
             this.Text = "Отправка расписания";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSend_FormClosing);
