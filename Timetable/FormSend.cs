@@ -16,12 +16,19 @@ namespace Timetable
         private bool _blockDgvChk;
         private string _file;
         private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private readonly Dictionary<string, int> _smtpServers;
 
         public FormSend(List<Teacher> teachers, string file)
         {
             InitializeComponent();
             SetConfigData();
             _file = file;
+            _smtpServers = SmtpServers();
+            FillTeacherDgv(teachers);
+        }
+
+        private void FillTeacherDgv(List<Teacher> teachers)
+        {
             if (teachers.Count != 0)
             {
                 dgvTeachers.DataSource = teachers;
@@ -30,6 +37,17 @@ namespace Timetable
                 dgvTeachers.Columns["Column"].Visible = false;
                 SetChkFullState();
             }
+        }
+
+        private static Dictionary<string, int> SmtpServers()
+        {
+            return new Dictionary<string, int>()
+            {
+                {"mail.ru", 25},
+                {"gmail.com", 547},
+                {"yandex.ru", 547 },
+                {"hse.ru", 465 }
+            };
         }
 
         private void SetConfigData()
@@ -41,7 +59,6 @@ namespace Timetable
             var mailTheme = ConfigurationManager.AppSettings.Get("EmailTheme");
             rtbMailTheme.Text = mailTheme;
         }
-
         private void FormSend_FormClosing(object sender, FormClosingEventArgs e)
         {
         }
@@ -137,40 +154,53 @@ namespace Timetable
 
         private void SendMailToTeacher(IEnumerable<string> teacherMails)
         {
+            var mailAddress = ConfigurationManager.AppSettings.Get("EmailAddress");
             var message = new MailMessage
             {
-                From = new MailAddress("radarrrr@mail.ru")
+                From = new MailAddress(mailAddress),
+                Body = rtbMailBody.Text,
+                Subject = rtbMailTheme.Text
             };
-
+            /*
             teacherMails = new List<string>()
             {
                 "vadimradarrrrr@mail.ru"
-            };
-
+            };*/
             foreach (var teacherMail in teacherMails)
             {
                 message.To.Add(teacherMail);
             }
-
-            
-            SmtpClient smtp = new SmtpClient("smtp.mail.ru", 25);
-            smtp.Credentials = new NetworkCredential("radarrrr", "Fa7532159!1");
             var data = new Attachment(_file, MediaTypeNames.Application.Octet);
             message.Attachments.Add(data);
-            message.Subject = rtbMailTheme.Text;
-            message.Body = rtbMailBody.Text;
-            smtp.EnableSsl = true;
-            smtp.Send(message);
+
+            var smtp = GetSmtpClient(mailAddress);
 
             try
             {
                 smtp.Send(message);
+                MessageBox.Show($@"Рассылка успешно завершена");
             }
             catch (Exception exception)
             {
                 MessageBox.Show($@"Возникла следующая ошибка при отправке письма: {exception.Message}");
             }
             data.Dispose();
+        }
+
+        private SmtpClient GetSmtpClient(string mailAddress)
+        {
+            var password = ConfigurationManager.AppSettings.Get("EmailPassword");
+            var smtpServer = mailAddress.Split('@')[1];
+
+            var smtp = new SmtpClient("smtp." + smtpServer, GetSmtpPort(smtpServer));
+            smtp.Credentials = new NetworkCredential(mailAddress, password);
+            smtp.EnableSsl = true;
+            return smtp;
+        }
+
+        private int GetSmtpPort(string smtpServer)
+        {
+            return _smtpServers[smtpServer];
         }
 
         private void btnSaveMailTemplate_Click(object sender, EventArgs e)
