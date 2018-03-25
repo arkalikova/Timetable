@@ -44,9 +44,9 @@ namespace Timetable
             return new Dictionary<string, int>()
             {
                 {"mail.ru", 25},
-                {"gmail.com", 547},
-                {"yandex.ru", 547 },
-                {"hse.ru", 465 }
+                {"gmail.com", 587},
+                {"yandex.ru", 587 },
+                {"hse.ru", 587 }
             };
         }
 
@@ -161,11 +161,11 @@ namespace Timetable
                 Body = rtbMailBody.Text,
                 Subject = rtbMailTheme.Text
             };
-            /*
+            
             teacherMails = new List<string>()
             {
                 "vadimradarrrrr@mail.ru"
-            };*/
+            };
             foreach (var teacherMail in teacherMails)
             {
                 message.To.Add(teacherMail);
