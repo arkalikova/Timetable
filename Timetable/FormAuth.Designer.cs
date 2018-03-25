@@ -28,12 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAuth));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btnSaveAuthData = new System.Windows.Forms.Button();
             this.txtAdress = new System.Windows.Forms.TextBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -78,7 +80,7 @@
             // 
             this.txtAdress.Location = new System.Drawing.Point(28, 103);
             this.txtAdress.Name = "txtAdress";
-            this.txtAdress.Size = new System.Drawing.Size(306, 22);
+            this.txtAdress.Size = new System.Drawing.Size(305, 22);
             this.txtAdress.TabIndex = 4;
             this.txtAdress.Validating += new System.ComponentModel.CancelEventHandler(this.txtAdress_Validating);
             // 
@@ -87,14 +89,25 @@
             this.txtPassword.Location = new System.Drawing.Point(28, 159);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(306, 22);
+            this.txtPassword.Size = new System.Drawing.Size(305, 22);
             this.txtPassword.TabIndex = 5;
+            // 
+            // button1
+            // 
+            this.button1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button1.BackgroundImage")));
+            this.button1.Location = new System.Drawing.Point(306, 160);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(26, 22);
+            this.button1.TabIndex = 6;
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FormAuth
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(362, 251);
+            this.ClientSize = new System.Drawing.Size(364, 251);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.txtPassword);
             this.Controls.Add(this.txtAdress);
             this.Controls.Add(this.btnSaveAuthData);
@@ -116,5 +129,6 @@
         private System.Windows.Forms.Button btnSaveAuthData;
         private System.Windows.Forms.TextBox txtAdress;
         private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.Button button1;
     }
 }
