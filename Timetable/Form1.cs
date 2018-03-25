@@ -17,7 +17,8 @@ namespace Timetable
         {
             InitializeComponent();
             _dataContainer = new DataContainer();
-            txtPath.Text = ConfigurationManager.AppSettings.Get("SavePath");
+            if (Directory.Exists(ConfigurationManager.AppSettings.Get("SavePath")))
+                txtPath.Text = ConfigurationManager.AppSettings.Get("SavePath");
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
