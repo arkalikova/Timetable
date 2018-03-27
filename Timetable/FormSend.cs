@@ -13,16 +13,19 @@ namespace Timetable
         private bool _blockChkFull;
         private bool _blockDgvChk;
         private readonly string _file;
-        private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-        private readonly Dictionary<string, int> _smtpServers;
+        private static Configuration Config;
+        private readonly Dictionary<string, int> _smtpPorts;
+        private readonly Dictionary<string, string> _smtpServers;
 
-        public FormSend(List<Teacher> teachers, string file)
+        public FormSend(List<Teacher> teachers, string file, Configuration config)
         {
             InitializeComponent();
             SetConfigData();
             _file = file;
+            _smtpPorts = SmtpPorts();
             _smtpServers = SmtpServers();
             FillTeacherDgv(teachers);
+            Config = config;
         }
 
         private void FillTeacherDgv(List<Teacher> teachers)
@@ -40,7 +43,7 @@ namespace Timetable
             }
         }
 
-        private static Dictionary<string, int> SmtpServers()
+        private static Dictionary<string, int> SmtpPorts()
         {
             return new Dictionary<string, int>()
             {
@@ -48,6 +51,22 @@ namespace Timetable
                 {"gmail.com", 587},
                 {"yandex.ru", 587 },
                 {"hse.ru", 587 }
+            };
+        }
+
+        private static Dictionary<string, string> SmtpServers()
+        {
+            return new Dictionary<string, string>()
+            {
+                {"mail.ru", "smtp.mail.ru"},
+                {"gmail.com", "smtp.gmail.com"},
+                {"yandex.ru", "smtp.yandex.ru" },
+                //{"hse.ru", "hse.ru" }
+                //{"hse.ru", "mail.hse.ru" }
+                //{"hse.ru", "mailperm.hse.ru" }
+                //{"hse.ru", "smtp.mail.hse.ru" }
+                //{"hse.ru", "smtp.mailperm.hse.ru" }
+                {"hse.ru", "smtp.hse.ru" }
             };
         }
 
@@ -148,7 +167,7 @@ namespace Timetable
 
         private void OpenAuthForm()
         {
-            var authForm = new FormAuth();
+            var authForm = new FormAuth(Config);
             authForm.ShowDialog();
             SetConfigData();
         }
@@ -163,6 +182,7 @@ namespace Timetable
             try
             {
                 smtp.Send(message);
+                
                 MessageBox.Show($@"Рассылка успешно завершена");
                 data.Dispose();
             }
@@ -192,14 +212,19 @@ namespace Timetable
         private SmtpClient GetSmtpClient(string mailAddress, string mailPassword)
         {
             var smtpServer = mailAddress.Split('@')[1];
-            var smtp = new SmtpClient("smtp." + smtpServer, GetSmtpPort(smtpServer));
-            smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
+            var smtp = new SmtpClient(GetSmtpServer(smtpServer), GetSmtpPort(smtpServer));
+            smtp.Credentials = new NetworkCredential(mailAddress, mailPassword); 
             smtp.EnableSsl = true;
 
             return smtp;
         }
 
         private int GetSmtpPort(string smtpServer)
+        {
+            return _smtpPorts[smtpServer];
+        }
+
+        private string GetSmtpServer(string smtpServer)
         {
             return _smtpServers[smtpServer];
         }
@@ -208,11 +233,12 @@ namespace Timetable
         {
             try
             {
-                _config.AppSettings.Settings.Remove("EmailTheme");
-                _config.AppSettings.Settings.Add("EmailTheme", rtbMailTheme.Text);
-                _config.AppSettings.Settings.Remove("EmailBody");
-                _config.AppSettings.Settings.Add("EmailBody", rtbMailBody.Text);
-                _config.Save(ConfigurationSaveMode.Modified);
+                //var _config = ;
+                Config.AppSettings.Settings.Remove("EmailTheme");
+                Config.AppSettings.Settings.Add("EmailTheme", rtbMailTheme.Text);
+                Config.AppSettings.Settings.Remove("EmailBody");
+                Config.AppSettings.Settings.Add("EmailBody", rtbMailBody.Text);
+                Config.Save(ConfigurationSaveMode.Full);
                 ConfigurationManager.RefreshSection("appSettings");
                 MessageBox.Show(@"Шаблон письма успешно сохранен");
             }
