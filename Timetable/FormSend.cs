@@ -164,7 +164,7 @@ namespace Timetable
             
             teacherMails = new List<string>()
             {
-                "vadimradarrrrr@mail.ru"
+                "kar-pm@yandex.ru"
             };
             foreach (var teacherMail in teacherMails)
             {
