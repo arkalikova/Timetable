@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -14,17 +12,20 @@ namespace Timetable
     {
         private bool _blockChkFull;
         private bool _blockDgvChk;
-        private string _file;
-        private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-        private readonly Dictionary<string, int> _smtpServers;
+        private readonly string _file;
+        private static Configuration Config;
+        private readonly Dictionary<string, int> _smtpPorts;
+        private readonly Dictionary<string, string> _smtpServers;
 
-        public FormSend(List<Teacher> teachers, string file)
+        public FormSend(List<Teacher> teachers, string file, Configuration config)
         {
             InitializeComponent();
             SetConfigData();
             _file = file;
+            _smtpPorts = SmtpPorts();
             _smtpServers = SmtpServers();
             FillTeacherDgv(teachers);
+            Config = config;
         }
 
         private void FillTeacherDgv(List<Teacher> teachers)
@@ -32,14 +33,17 @@ namespace Timetable
             if (teachers.Count != 0)
             {
                 dgvTeachers.DataSource = teachers;
-                dgvTeachers.Columns["Name"].ReadOnly = true;
-                dgvTeachers.Columns["Email"].Visible = false;
-                dgvTeachers.Columns["Column"].Visible = false;
+                var dataGridViewColumn = dgvTeachers.Columns["Name"];
+                if (dataGridViewColumn != null) dataGridViewColumn.ReadOnly = true;
+                var dgvTeachersColumn = dgvTeachers.Columns["Email"];
+                if (dgvTeachersColumn != null) dgvTeachersColumn.Visible = false;
+                var gridViewColumn = dgvTeachers.Columns["Column"];
+                if (gridViewColumn != null) gridViewColumn.Visible = false;
                 SetChkFullState();
             }
         }
 
-        private static Dictionary<string, int> SmtpServers()
+        private static Dictionary<string, int> SmtpPorts()
         {
             return new Dictionary<string, int>()
             {
@@ -47,6 +51,22 @@ namespace Timetable
                 {"gmail.com", 587},
                 {"yandex.ru", 587 },
                 {"hse.ru", 587 }
+            };
+        }
+
+        private static Dictionary<string, string> SmtpServers()
+        {
+            return new Dictionary<string, string>()
+            {
+                {"mail.ru", "smtp.mail.ru"},
+                {"gmail.com", "smtp.gmail.com"},
+                {"yandex.ru", "smtp.yandex.ru" },
+                //{"hse.ru", "hse.ru" }
+                //{"hse.ru", "mail.hse.ru" }
+                //{"hse.ru", "mailperm.hse.ru" }
+                //{"hse.ru", "smtp.mail.hse.ru" }
+                //{"hse.ru", "smtp.mailperm.hse.ru" }
+                {"hse.ru", "smtp.hse.ru" }
             };
         }
 
@@ -147,7 +167,7 @@ namespace Timetable
 
         private void OpenAuthForm()
         {
-            var authForm = new FormAuth();
+            var authForm = new FormAuth(Config);
             authForm.ShowDialog();
             SetConfigData();
         }
@@ -155,50 +175,56 @@ namespace Timetable
         private void SendMailToTeacher(IEnumerable<string> teacherMails)
         {
             var mailAddress = ConfigurationManager.AppSettings.Get("EmailAddress");
+            var password = ConfigurationManager.AppSettings.Get("EmailPassword");
+            var smtp = GetSmtpClient(mailAddress, password);
+            var message = GetMailMessage(teacherMails, mailAddress, out Attachment data);
+
+            try
+            {
+                smtp.Send(message);
+                
+                MessageBox.Show($@"Рассылка успешно завершена");
+                data.Dispose();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show($@"Возникла следующая ошибка при отправке письма: {exception.Message}");
+            }
+        }
+
+        private MailMessage GetMailMessage(IEnumerable<string> teacherMails, string mailAddress, out Attachment data)
+        {
             var message = new MailMessage
             {
                 From = new MailAddress(mailAddress),
                 Body = rtbMailBody.Text,
                 Subject = rtbMailTheme.Text
             };
-            
-            teacherMails = new List<string>()
-            {
-                "kar-pm@yandex.ru"
-            };
             foreach (var teacherMail in teacherMails)
             {
                 message.To.Add(teacherMail);
             }
-            var data = new Attachment(_file, MediaTypeNames.Application.Octet);
+            data = new Attachment(_file, MediaTypeNames.Application.Octet);
             message.Attachments.Add(data);
-
-            var smtp = GetSmtpClient(mailAddress);
-
-            try
-            {
-                smtp.Send(message);
-                MessageBox.Show($@"Рассылка успешно завершена");
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show($@"Возникла следующая ошибка при отправке письма: {exception.Message}");
-            }
-            data.Dispose();
+            return message;
         }
 
-        private SmtpClient GetSmtpClient(string mailAddress)
+        private SmtpClient GetSmtpClient(string mailAddress, string mailPassword)
         {
-            var password = ConfigurationManager.AppSettings.Get("EmailPassword");
             var smtpServer = mailAddress.Split('@')[1];
-
-            var smtp = new SmtpClient("smtp." + smtpServer, GetSmtpPort(smtpServer));
-            smtp.Credentials = new NetworkCredential(mailAddress, password);
+            var smtp = new SmtpClient(GetSmtpServer(smtpServer), GetSmtpPort(smtpServer));
+            smtp.Credentials = new NetworkCredential(mailAddress, mailPassword); 
             smtp.EnableSsl = true;
+
             return smtp;
         }
 
         private int GetSmtpPort(string smtpServer)
+        {
+            return _smtpPorts[smtpServer];
+        }
+
+        private string GetSmtpServer(string smtpServer)
         {
             return _smtpServers[smtpServer];
         }
@@ -207,11 +233,12 @@ namespace Timetable
         {
             try
             {
-                _config.AppSettings.Settings.Remove("EmailTheme");
-                _config.AppSettings.Settings.Add("EmailTheme", rtbMailTheme.Text);
-                _config.AppSettings.Settings.Remove("EmailBody");
-                _config.AppSettings.Settings.Add("EmailBody", rtbMailBody.Text);
-                _config.Save(ConfigurationSaveMode.Modified);
+                //var _config = ;
+                Config.AppSettings.Settings.Remove("EmailTheme");
+                Config.AppSettings.Settings.Add("EmailTheme", rtbMailTheme.Text);
+                Config.AppSettings.Settings.Remove("EmailBody");
+                Config.AppSettings.Settings.Add("EmailBody", rtbMailBody.Text);
+                Config.Save(ConfigurationSaveMode.Full);
                 ConfigurationManager.RefreshSection("appSettings");
                 MessageBox.Show(@"Шаблон письма успешно сохранен");
             }

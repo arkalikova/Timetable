@@ -1,24 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Timetable
 {
     public partial class FormAuth : Form
     {
-        private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private static Configuration _config;
 
-        public FormAuth()
+        public FormAuth(Configuration config)
         {
             InitializeComponent();
+            _config = config;
             txtAdress.Text = ConfigurationManager.AppSettings.Get("EmailAddress");
             txtPassword.Text = ConfigurationManager.AppSettings.Get("EmailPassword");
         }
@@ -36,7 +31,7 @@ namespace Timetable
                     _config.AppSettings.Settings.Add("EmailAddress", txtAddressText);
                     _config.AppSettings.Settings.Remove("EmailPassword");
                     _config.AppSettings.Settings.Add("EmailPassword", txtPasswordText);
-                    _config.Save(ConfigurationSaveMode.Modified);
+                    _config.Save(ConfigurationSaveMode.Full);
                     ConfigurationManager.RefreshSection("appSettings");
                     MessageBox.Show(@"Учетные данные успешно сохранены");
                     Close();

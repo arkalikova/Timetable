@@ -11,7 +11,7 @@ namespace Timetable
         private FileInfo _filePathToStudents;
         private FileInfo _filePathToTeachers;
         private DataContainer _dataContainer;
-        private readonly Configuration _config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+        private static Configuration Config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         public Form1()
         {
@@ -102,9 +102,9 @@ namespace Timetable
             if (fbd.ShowDialog() == DialogResult.OK)
             {
                 txtPath.Text = fbd.SelectedPath;
-                _config.AppSettings.Settings.Remove("SavePath");
-                _config.AppSettings.Settings.Add("SavePath", fbd.SelectedPath);
-                _config.Save(ConfigurationSaveMode.Modified);
+                Config.AppSettings.Settings.Remove("SavePath");
+                Config.AppSettings.Settings.Add("SavePath", fbd.SelectedPath);
+                Config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
             }
         }
@@ -129,7 +129,7 @@ namespace Timetable
             var readOnlyCollection = _dataContainer.Teachers.Values.Where(x => x.Name != string.Empty).ToList();
             if (readOnlyCollection.Count != 0)
             {
-                var frm = new FormSend(readOnlyCollection, _filePathToTeachers.FullName);
+                var frm = new FormSend(readOnlyCollection, _filePathToTeachers.FullName, Config);
                 frm.ShowDialog();
             }
             else
