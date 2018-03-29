@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -20,7 +21,8 @@ namespace Timetable
         public FormSend(List<Teacher> teachers, string file, Configuration config)
         {
             InitializeComponent();
-            SetConfigData();
+            SetAuthData();
+            SetMailData();
             _file = file;
             _smtpPorts = SmtpPorts();
             _smtpServers = SmtpServers();
@@ -70,15 +72,21 @@ namespace Timetable
             };
         }
 
-        private void SetConfigData()
+        private void SetAuthData()
         {
             var loginLabelText = ConfigurationManager.AppSettings.Get("EmailAddress");
             loginLabel.Text = loginLabelText ?? "Нет учетных данных";
+        }
+
+        private void SetMailData()
+        {
             var mailBody = ConfigurationManager.AppSettings.Get("EmailBody");
             rtbMailBody.Text = mailBody;
             var mailTheme = ConfigurationManager.AppSettings.Get("EmailTheme");
             rtbMailTheme.Text = mailTheme;
         }
+
+
         private void FormSend_FormClosing(object sender, FormClosingEventArgs e)
         {
         }
@@ -169,7 +177,7 @@ namespace Timetable
         {
             var authForm = new FormAuth(Config);
             authForm.ShowDialog();
-            SetConfigData();
+            SetAuthData();
         }
 
         private void SendMailToTeacher(IEnumerable<string> teacherMails)
@@ -177,18 +185,29 @@ namespace Timetable
             var mailAddress = ConfigurationManager.AppSettings.Get("EmailAddress");
             var password = ConfigurationManager.AppSettings.Get("EmailPassword");
             var smtp = GetSmtpClient(mailAddress, password);
-            var message = GetMailMessage(teacherMails, mailAddress, out Attachment data);
 
             try
             {
-                smtp.Send(message);
-                
-                MessageBox.Show($@"Рассылка успешно завершена");
-                data.Dispose();
+                var message = GetMailMessage(teacherMails, mailAddress, out Attachment data);
+                try
+                {
+                    smtp.Send(message);
+                    MessageBox.Show($@"Рассылка успешно завершена");
+                    data.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show($"Возникла следующая ошибка при отправке письма: {exception.Message}\n"+
+                                    @"Проверьте интернет-соединение и правильность введенных учетных данных");
+                }
             }
-            catch (Exception exception)
+            catch (IOException)
             {
-                MessageBox.Show($@"Возникла следующая ошибка при отправке письма: {exception.Message}");
+                MessageBox.Show(Settings.FailedConvertationMessage);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(Settings.FailedOtherMessage);
             }
         }
 
