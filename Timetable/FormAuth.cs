@@ -15,7 +15,7 @@ namespace Timetable
             InitializeComponent();
             _config = config;
             txtAdress.Text = ConfigurationManager.AppSettings.Get("EmailAddress");
-            txtPassword.Text = ConfigurationManager.AppSettings.Get("EmailPassword");
+            txtPassword.Text = Encryption.DecryptString(ConfigurationManager.AppSettings.Get("EmailPassword"));
         }
 
         private void btnSaveAuthData_Click(object sender, EventArgs e)
@@ -30,7 +30,7 @@ namespace Timetable
                     _config.AppSettings.Settings.Remove("EmailAddress");
                     _config.AppSettings.Settings.Add("EmailAddress", txtAddressText);
                     _config.AppSettings.Settings.Remove("EmailPassword");
-                    _config.AppSettings.Settings.Add("EmailPassword", txtPasswordText);
+                    _config.AppSettings.Settings.Add("EmailPassword", Encryption.EncryptString(txtPasswordText));
                     _config.Save(ConfigurationSaveMode.Full);
                     ConfigurationManager.RefreshSection("appSettings");
                     MessageBox.Show(@"Учетные данные успешно сохранены", "", MessageBoxButtons.OK, MessageBoxIcon.Information);

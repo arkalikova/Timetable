@@ -184,7 +184,7 @@ namespace Timetable
         private void SendMailToTeacher(List<string> teacherMails)
         {
             var mailAddress = ConfigurationManager.AppSettings.Get("EmailAddress");
-            var password = ConfigurationManager.AppSettings.Get("EmailPassword");
+            var password = Encryption.DecryptString(ConfigurationManager.AppSettings.Get("EmailPassword"));
             var smtp = GetSmtpClient(mailAddress, password);
 
             try
