@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -163,12 +164,12 @@ namespace Timetable
                 }
                 else
                 {
-                    MessageBox.Show(@"Необходимо выбрать преподавателей для отправки писем");
+                    MessageBox.Show(@"Необходимо выбрать преподавателей для отправки писем", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             else
             {
-                MessageBox.Show(@"Перед рассылкой необходимо ввести учетные данные");
+                MessageBox.Show(@"Перед рассылкой необходимо ввести учетные данные", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 OpenAuthForm();
             }
         }
@@ -180,7 +181,7 @@ namespace Timetable
             SetAuthData();
         }
 
-        private void SendMailToTeacher(IEnumerable<string> teacherMails)
+        private void SendMailToTeacher(List<string> teacherMails)
         {
             var mailAddress = ConfigurationManager.AppSettings.Get("EmailAddress");
             var password = ConfigurationManager.AppSettings.Get("EmailPassword");
@@ -188,26 +189,36 @@ namespace Timetable
 
             try
             {
-                var message = GetMailMessage(teacherMails, mailAddress, out Attachment data);
                 try
                 {
-                    smtp.Send(message);
-                    MessageBox.Show($@"Рассылка успешно завершена");
-                    data.Dispose();
+                    var batch = new List<string>();
+                    for (var i = teacherMails.Count - 1; i >= 0; i--)
+                    {
+                        batch.Add(teacherMails[i]);
+                        if (i % 25 == 0)
+                        {
+                            var message = GetMailMessage(teacherMails, mailAddress, out Attachment data);
+                            smtp.Send(message);
+                            data.Dispose();
+                            batch.Clear();
+                        }
+                    }
+                    MessageBox.Show($@"Рассылка успешно завершена", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception exception)
                 {
-                    MessageBox.Show($"Возникла следующая ошибка при отправке письма: {exception.Message}\n"+
-                                    @"Проверьте интернет-соединение и правильность введенных учетных данных");
+                    MessageBox.Show("Возникла ошибка при отправке письма.\n"+
+                                    "Проверьте интернет-соединение и правильность введенных учетных данных.\n\n" +
+                                    $"Подробности:\n{exception.Message}", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (IOException)
             {
-                MessageBox.Show(Settings.FailedConvertationMessage);
+                MessageBox.Show(Settings.FailedConvertationMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception e)
             {
-                MessageBox.Show(Settings.FailedOtherMessage);
+                MessageBox.Show(Settings.FailedOtherMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -219,7 +230,7 @@ namespace Timetable
                 Body = rtbMailBody.Text,
                 Subject = rtbMailTheme.Text
             };
-            foreach (var teacherMail in teacherMails)
+            foreach (var teacherMail in teacherMails.Distinct())
             {
                 message.To.Add(teacherMail);
             }
@@ -259,11 +270,11 @@ namespace Timetable
                 Config.AppSettings.Settings.Add("EmailBody", rtbMailBody.Text);
                 Config.Save(ConfigurationSaveMode.Full);
                 ConfigurationManager.RefreshSection("appSettings");
-                MessageBox.Show(@"Шаблон письма успешно сохранен");
+                MessageBox.Show(@"Шаблон письма успешно сохранен", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception exception)
             {
-                MessageBox.Show($@"При сохранении шаблона письма произошла ошибка : {exception.Message}");
+                MessageBox.Show($@"При сохранении шаблона письма произошла ошибка : {exception.Message}", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

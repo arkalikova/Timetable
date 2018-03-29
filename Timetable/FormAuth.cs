@@ -33,7 +33,7 @@ namespace Timetable
                     _config.AppSettings.Settings.Add("EmailPassword", txtPasswordText);
                     _config.Save(ConfigurationSaveMode.Full);
                     ConfigurationManager.RefreshSection("appSettings");
-                    MessageBox.Show(@"Учетные данные успешно сохранены");
+                    MessageBox.Show(@"Учетные данные успешно сохранены", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Close();
                 }
                 catch (Exception exception)
@@ -44,7 +44,7 @@ namespace Timetable
             }
             else
             {
-                MessageBox.Show(@"Перед сохранением введите учетные данные");
+                MessageBox.Show(@"Перед сохранением введите учетные данные", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Timetable
                 }
                 catch (FormatException)
                 {
-                    MessageBox.Show(@"Адрес почтового ящика должен быть вида example@hse.ru");
+                    MessageBox.Show(@"Необходимо ввести адрес почтового ящика (вида example@hse.ru)", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

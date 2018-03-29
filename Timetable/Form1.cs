@@ -49,7 +49,7 @@ namespace Timetable
                     _filePathToStudents = new FileInfo(_filePathToStudents.DirectoryName + "\\" + Converter.Filename + ".xls");
                     _filePathToTeachers = new FileInfo(_filePathToTeachers.DirectoryName + "\\Карточка_" + Converter.Filename + ".xls");
 
-                    MessageBox.Show(Settings.SuccessConvertationMessage);
+                    MessageBox.Show(Settings.SuccessConvertationMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     btnOpenStudents.Enabled = true;
                     btnOpenTeachers.Enabled = true;
                     btnSend.Enabled = true;
@@ -59,28 +59,28 @@ namespace Timetable
                     progressBar1.Value = 0;
                     btnOpenStudents.Enabled = false;
                     btnOpenTeachers.Enabled = false;
-                    MessageBox.Show(Settings.FailedConvertationMessage);
+                    MessageBox.Show(Settings.FailedConvertationMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (NullReferenceException)
                 {
                     progressBar1.Value = 0;
                     btnOpenStudents.Enabled = false;
                     btnOpenTeachers.Enabled = false;
-                    MessageBox.Show(Settings.FailedFoundListMessage);
+                    MessageBox.Show(Settings.FailedFoundListMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (System.Collections.Generic.KeyNotFoundException)
                 {
                     progressBar1.Value = 0;
                     btnOpenStudents.Enabled = false;
                     btnOpenTeachers.Enabled = false;
-                    MessageBox.Show(Settings.FailedFoundKeyMessage);
+                    MessageBox.Show(Settings.FailedFoundKeyMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception)
                 {
                     progressBar1.Value = 0;
                     btnOpenStudents.Enabled = false;
                     btnOpenTeachers.Enabled = false;
-                    MessageBox.Show(Settings.FailedOtherMessage);
+                    MessageBox.Show(Settings.FailedOtherMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -134,7 +134,7 @@ namespace Timetable
             }
             else
             {
-                MessageBox.Show(Settings.FailedSendEmailMessage);
+                MessageBox.Show(Settings.FailedSendEmailMessage, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }
