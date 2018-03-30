@@ -45,8 +45,8 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(263, 51);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Пожалуйста, введите учетные данные\r\nпочтового ящика, с которого будут \r\nрассылтьс" +
-    "я письма";
+            this.label1.Text = "Пожалуйста, введите учетные данные\r\nпочтового ящика, с которого будут \r\nрассылать" +
+    "ся письма";
             // 
             // label2
             // 
