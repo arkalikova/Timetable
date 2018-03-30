@@ -78,7 +78,7 @@ namespace Timetable
                 }
                 catch (FormatException)
                 {
-                    MessageBox.Show(@"Необходимо ввести адрес почтового ящика (вида example@hse.ru)", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Необходимо ввести адрес почтового ящика (вида example@mail.ru)", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

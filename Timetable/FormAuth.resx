@@ -120,17 +120,16 @@
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="button1.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAIHSURBVFhH7ZYxSxxRFIVXXNMoafUPJKCdgomgQsCQQiysLC3Sh6SxzhJBFMVCEAVJmiVB/CNa
-        COlDiuAfkBBSSAjxO5PzhrdvZ9eZ3XYOfDjv3nPvzPruvtlGrVq1yqrdbo/CU9iEc7iGW6NrxZR7AqMu
-        G140m4Jt+AP/SiLvB5h0m+qieBxOoOgGVTiGcbctJwqWoMonfog7WHT7/sLYigpjfsMCaBaErhUr8vbi
-        vW9TLAyHScE+hG1YsC2XYs714ggOktieyztFYisxvnT8yuuuyVbMuV5c2vcqib/LGgQReJ4YZp1STvun
-        2CAPcGervHNJbj4kHkG8l2tZwmJ94/ggW/DD1kys16PcLxhTMB66j/bmIvbFuUGG8LPb5CL2Kcq30gc4
-        sy8XsZUoX5UVt8lFrOsBHtoCfVodtyFfFtV0zA3reAt0z7GQ6DmEEuv5JF+G/0NmsS4ewiAC6dfwhVOZ
-        WG8k+X5suCwT63QbO7+GEsERSA+iXWjaIs8MfHeuiG8wbbv8TdhzLlB8EAVhSI/in7AK2X7yVw+q1/Jb
-        0Ckp3oBewyP2aG7WQLVxr/5HcRDGZUhfRn9Bx+ozeAz5gOnaMeXkkTeuVa8l28uJggk4dYNhUI9qr+NY
-        FOsHiWYh/VT9kHcHptxmeNFM/+ZpeA0X8BW0x0LXiiknT9d7o1atWsVqNO4BtLJVT9bvOV8AAAAASUVO
-        RK5CYII=
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAgdJREFUWEft
+        ljFLHFEUhVdc0yhp9Q8koJ2CiaBCwJBCLKwsLdKHpLHOEkEUxUIQBUmaJUH8I1oI6UOK4B+QEFJICPE7
+        k/OGt29n15nddg58OO/ec+/M+u6+2UatWrXKqt1uj8JT2IRzuIZbo2vFlHsCoy4bXjSbgm34A/9KIu8H
+        mHSb6qJ4HE6g6AZVOIZxty0nCpagyid+iDtYdPv+wtiKCmN+wwJoFoSuFSvy9uK9b1MsDIdJwT6EbViw
+        LZdizvXiCA6S2J7LO0ViKzG+dPzK667JVsy5Xlza9yqJv8saBBF4nhhmnVJO+6fYIA9wZ6u8c0luPiQe
+        QbyXa1nCYn3j+CBb8MPWTKzXo9wvGFMwHrqP9uYi9sW5QYbws9vkIvYpyrfSBzizLxexlShflRW3yUWs
+        6wEe2gJ9Wh23IV8W1XTMDet4C3TPsZDoOYQS6/kkX4b/Q2axLh7CIALp1/CFU5lYbyT5fmy4LBPrdBs7
+        v4YSwRFID6JdaNoizwx8d66IbzBtu/xN2HMuUHwQBWFIj+KfsArZfvJXD6rX8lvQKSnegF7DI/ZobtZA
+        tXGv/kdxEMZlSF9Gf0HH6jN4DPmA6dox5eSRN65VryXby4mCCTh1g2FQj2qv41gU6weJZiH9VP2Qdwem
+        3GZ40Uz/5ml4DRfwFbTHQteKKSdP13ujVq1axWo07gG0slVP1u85XwAAAABJRU5ErkJggg==
 </value>
   </data>
 </root>
