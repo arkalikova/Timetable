@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Net.Mail;
@@ -9,10 +10,17 @@ namespace Timetable
     public partial class FormAuth : Form
     {
         private static Configuration _config;
+        private static Dictionary<string, string> inboxes;
 
         public FormAuth(Configuration config)
         {
             InitializeComponent();
+            inboxes = new Dictionary<string, string>()
+            {
+                {"mail.ru", "smtp.mail.ru"},
+                {"gmail.com", "smtp.gmail.com"},
+                {"yandex.ru", "smtp.yandex.ru" }
+            };
             _config = config;
             txtAdress.Text = ConfigurationManager.AppSettings.Get("EmailAddress");
             txtPassword.Text = Encryption.DecryptString(ConfigurationManager.AppSettings.Get("EmailPassword"));
@@ -24,9 +32,12 @@ namespace Timetable
             var txtPasswordText = txtPassword.Text.Trim();
             if (txtAddressText.Length != 0 && txtPasswordText.Length != 0)
             {
+                string smtpServer = "";
                 try
                 {
-                    var m = new MailAddress(txtAddressText);
+                    var mailAddress = new MailAddress(txtAddressText);
+                    smtpServer = mailAddress.Host;
+                    var server = inboxes[smtpServer];
                     _config.AppSettings.Settings.Remove("EmailAddress");
                     _config.AppSettings.Settings.Add("EmailAddress", txtAddressText);
                     _config.AppSettings.Settings.Remove("EmailPassword");
@@ -35,6 +46,14 @@ namespace Timetable
                     ConfigurationManager.RefreshSection("appSettings");
                     MessageBox.Show(@"Учетные данные успешно сохранены", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Close();
+                }
+                catch (KeyNotFoundException exception)
+                {
+                    MessageBox.Show($"Отправка писем с домена \"{smtpServer}\" на данный момент не поддерживается.\n\n" +
+                                    "Поддерживаемые домены:\n" +
+                                    "\"mail.ru \"\n" +
+                                    "\"gmail.com \"\n" +
+                                    "\"yandex.ru \"\n", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception exception)
                 {

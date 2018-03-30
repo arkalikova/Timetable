@@ -52,8 +52,8 @@ namespace Timetable
             {
                 {"mail.ru", 25},
                 {"gmail.com", 587},
-                {"yandex.ru", 587 },
-                {"hse.ru", 587 }
+                {"yandex.ru", 587}
+                //{"hse.ru", 587 }
             };
         }
 
@@ -63,13 +63,13 @@ namespace Timetable
             {
                 {"mail.ru", "smtp.mail.ru"},
                 {"gmail.com", "smtp.gmail.com"},
-                {"yandex.ru", "smtp.yandex.ru" },
+                {"yandex.ru", "smtp.yandex.ru" }
                 //{"hse.ru", "hse.ru" }
                 //{"hse.ru", "mail.hse.ru" }
                 //{"hse.ru", "mailperm.hse.ru" }
                 //{"hse.ru", "smtp.mail.hse.ru" }
                 //{"hse.ru", "smtp.mailperm.hse.ru" }
-                {"hse.ru", "smtp.hse.ru" }
+                //{"hse.ru", "smtp.hse.ru" }
             };
         }
 
@@ -160,7 +160,7 @@ namespace Timetable
                         if (Convert.ToBoolean(dgvTeachers.Rows[i].Cells["isNotificated"].Value))
                             teacherMails.Add(Convert.ToString(dgvTeachers.Rows[i].Cells["Email"].Value));
                     }
-                    SendMailToTeacher(teacherMails);
+                    SendMailToTeacher(teacherMails.Distinct().ToList());
                 }
                 else
                 {
@@ -185,12 +185,12 @@ namespace Timetable
         {
             var mailAddress = ConfigurationManager.AppSettings.Get("EmailAddress");
             var password = Encryption.DecryptString(ConfigurationManager.AppSettings.Get("EmailPassword"));
-            var smtp = GetSmtpClient(mailAddress, password);
 
             try
             {
                 try
                 {
+                    var smtp = GetSmtpClient(mailAddress, password);
                     var batch = new List<string>();
                     for (var i = teacherMails.Count - 1; i >= 0; i--)
                     {
@@ -203,7 +203,17 @@ namespace Timetable
                             batch.Clear();
                         }
                     }
-                    MessageBox.Show($@"Рассылка успешно завершена", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($@"Рассылка успешно завершена", "", MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                catch (KeyNotFoundException exception)
+                {
+                    var smtpServer = mailAddress.Split('@')[1];
+                    MessageBox.Show($"Отправка писем с домена {smtpServer} на данный момент не поддерживается.\n\n" +
+                                    "Поддерживаемые домены:\n" +
+                                    "mail.ru\n"+
+                                    "gmail.com\n" +
+                                    "yandex.ru\n", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception exception)
                 {
@@ -230,7 +240,7 @@ namespace Timetable
                 Body = rtbMailBody.Text,
                 Subject = rtbMailTheme.Text
             };
-            foreach (var teacherMail in teacherMails.Distinct())
+            foreach (var teacherMail in teacherMails)
             {
                 message.To.Add(teacherMail);
             }
