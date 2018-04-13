@@ -378,33 +378,47 @@ namespace Timetable
                                     //карточка
                                     cardsheet = newWorksheetT.Workbook.Worksheets[newWorksheetT.Cells[3, teacherColumn].Value.ToString()];
                                     var curday = FindDay(row, newWorksheetT);
-                                    cardrowdate = FindDate(cardsheet);
-                                    cardrowclass = FindClass(cardsheet);
-                                    cardrowgroups = FindGroup(cardsheet);
+                                    var class_ = "Пара №" + excelWorksheet.Cells[row, 2].Value +
+                                            $" ({_dataContainer.Time[Convert.ToInt32((double)excelWorksheet.Cells[row, 3].Value)]})";
+                                    cardrowdate = FindDate(cardsheet, curday);
+                                    cardrowclass = FindClass(cardsheet, cardrowdate, class_, curday);
+                                    cardrowgroups = FindGroup(cardsheet, cardrowdate, cardrowclass, class_, curday);
                                     if (cardsheet.Cells[cardrowdate,1].Value==null)
                                     {
                                         cardsheet.Cells[cardrowdate, 1].Value = curday;
-                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value +
-                                            $" ({_dataContainer.Time[Convert.ToInt32((double)excelWorksheet.Cells[row, 3].Value)]})";
+                                        cardrowclass = cardrowdate + 1;
+                                        cardsheet.Cells[cardrowclass, 2].Value = class_;
                                     }
                                     else if (cardsheet.Cells[cardrowdate, 1].Value == curday)
                                     {
-                                        cardsheet.InsertRow(cardrowgroups + 1, 1, cardrowgroups);
-                                        cardrowgroups++;
+                                        if ((cardsheet.Cells[cardrowclass, 2].Value != null) && (cardsheet.Cells[cardrowclass, 2].Value.ToString() == class_))
+                                        {
+                                            cardsheet.InsertRow(cardrowgroups + 1, 1, cardrowgroups);
+                                            cardrowgroups++;
+                                        }
+                                        else
+                                        {
+                                            cardsheet.InsertRow(cardrowgroups + 1, 1, (cardrowgroups == 4 ? 6 : 5));
+                                            cardrowclass = cardrowgroups + 1;
+                                            cardsheet.InsertRow(cardrowclass + 1, 1, (cardrowclass == 5 ? 7 : 6));
+                                            cardrowgroups = cardrowclass + 1;
+                                            cardsheet.Cells[cardrowclass, 2].Value = class_;
+                                        }
                                     }
                                     else
                                     {
-                                        cardsheet.InsertRow(cardrowgroups + 1, 1, cardrowdate);
-                                        cardrowdate = cardrowgroups + 1;
+                                        var insrow = cardsheet.Cells[cardrowdate, 1].Value.ToString().CompareTo(curday.ToString()) > 0 ? cardrowdate : cardrowgroups + 1;
+                                        cardsheet.InsertRow(insrow, 1,
+                                            (cardsheet.Cells[cardrowdate, 1].Value.ToString().CompareTo(curday.ToString()) > 0 ? 5 : 4));
+                                        cardrowdate = insrow;
                                         cardsheet.Cells[cardrowdate, 1, cardrowdate, 3].Merge = true;
-                                        cardsheet.InsertRow(cardrowdate + 1, 1, cardrowclass);
+                                        cardsheet.InsertRow(cardrowdate + 1, 1, (cardrowdate == 4 ? 7 : 5));
                                         cardrowclass = cardrowdate + 1;
                                         cardsheet.Cells[cardrowclass, 2, cardrowclass, 3].Merge = true;
-                                        cardsheet.InsertRow(cardrowclass + 1, 1, cardrowgroups);
+                                        cardsheet.InsertRow(cardrowclass + 1, 1, (cardrowdate == 4 ? 9 : 6));
                                         cardrowgroups = cardrowclass + 1;
                                         cardsheet.Cells[cardrowdate, 1].Value = curday;
-                                        cardsheet.Cells[cardrowclass, 2].Value = "Пара №" + excelWorksheet.Cells[row, 2].Value +
-                                            $" ({_dataContainer.Time[Convert.ToInt32((double)excelWorksheet.Cells[row, 3].Value)]})";
+                                        cardsheet.Cells[cardrowclass, 2].Value = class_;
                                     }
                                     cardsheet.Cells[cardrowgroups, 3].Value =
                                         excelWorksheet.Cells[3, col].Value + ", " +
@@ -474,26 +488,51 @@ namespace Timetable
             }
         }
 
-        private static int FindGroup(ExcelWorksheet cardsheet)
+        private static int FindGroup(ExcelWorksheet cardsheet, int cardrowdate, int cardrowclass, string class_, object day)
         {
-            var temprow = cardsheet.Dimension.End.Row - 5;
-            while ((cardsheet.Cells[temprow, 3].Value == null) && (temprow > 6))
-                temprow--;
-            return temprow;
+            if (cardsheet.Cells[cardrowdate, 1].Value == day)
+            {
+                if ((cardsheet.Cells[cardrowclass, 2].Value != null) && (cardsheet.Cells[cardrowclass, 2].Value.ToString() == class_))
+                {
+                    var temprow = cardrowclass + 1;
+                    while ((cardsheet.Cells[temprow, 3].Value != null) && (temprow <= cardsheet.Dimension.End.Row - 5))
+                        temprow++;
+                    return temprow - 1;
+                }
+                else
+                    return (cardrowclass == cardsheet.Dimension.End.Row - 5 ? cardrowclass :
+                        (cardrowclass == cardrowdate ? cardrowclass : cardrowclass - 1));
+            }
+            else
+            {
+                var temprow = cardrowdate + 1;
+                while ((cardsheet.Cells[temprow, 1].Value == null) && (temprow <= cardsheet.Dimension.End.Row - 5))
+                    temprow++;
+                return temprow - 1;
+            }
+            
         }
 
-        private static int FindClass(ExcelWorksheet cardsheet)
+        private static int FindClass(ExcelWorksheet cardsheet, int cardrowdate, string class_, object day)
         {
-            var temprow = cardsheet.Dimension.End.Row - 5;
-            while ((cardsheet.Cells[temprow, 2].Value == null) && (temprow > 5))
-                temprow--;
-            return temprow;
+            if (cardsheet.Cells[cardrowdate, 1].Value == day)
+            {
+                var temprow = cardrowdate + 1;//cardsheet.Dimension.End.Row - 5;
+                while (((cardsheet.Cells[temprow, 2].Value == null) || (cardsheet.Cells[temprow, 2].Value.ToString().CompareTo(class_) < 0))
+                    && (cardsheet.Cells[temprow, 1].Value == null) && (temprow <= cardsheet.Dimension.End.Row - 5))
+                    temprow++;
+                return (temprow == cardsheet.Dimension.End.Row - 4 ? temprow - 1 : temprow);
+            }
+            else
+                return cardrowdate + 1;
+            
         }
 
-        private static int FindDate(ExcelWorksheet cardsheet)
+        private static int FindDate(ExcelWorksheet cardsheet, object day)
         {
             var temprow = cardsheet.Dimension.End.Row - 5;
-            while ((cardsheet.Cells[temprow, 1].Value == null) && (temprow > 4))
+            while (((cardsheet.Cells[temprow, 1].Value == null) || (cardsheet.Cells[temprow, 1].Value.ToString().CompareTo(day.ToString()) > 0)) 
+                && (temprow > 4))
                 temprow--;
             return temprow;
         }
